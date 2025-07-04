@@ -1,0 +1,162 @@
+/* src/app/components/notas-asignatura/notas-asignatura.component.css */
+.notas-container {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 64px); /* Ajusta si tienes un navbar superior */
+  box-sizing: border-box;
+}
+
+.notas-card {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.notas-card mat-card-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.loading-spinner, .no-notas-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #777;
+  font-size: 1.1em;
+}
+
+.loading-spinner mat-spinner {
+  margin-bottom: 15px;
+}
+
+.no-notas-message mat-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+  color: #999;
+}
+
+.notas-accordion {
+  margin-top: 20px;
+}
+
+.mat-expansion-panel {
+  border-radius: 8px !important;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mat-expansion-panel-header {
+  padding: 15px 20px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  border-radius: 8px 8px 0 0;
+}
+
+.asignatura-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #4285F4; /* Azul de Material Design */
+}
+
+.promedio-description {
+  display: flex;
+  align-items: center;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: #555;
+}
+
+.promedio-description span {
+  margin-left: 8px;
+  font-weight: 700;
+}
+
+.promedio-description mat-icon {
+  margin-left: 10px;
+  color: #777;
+}
+
+.notas-table-container {
+  overflow-x: auto; /* Permite scroll horizontal en tablas pequeñas */
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.mat-header-cell {
+  background-color: #e0e0e0;
+  color: #333;
+  font-weight: 600;
+  padding: 10px 15px;
+  text-align: left;
+}
+
+.mat-cell {
+  padding: 10px 15px;
+  color: #555;
+  border-bottom: 1px solid #eee;
+}
+
+.mat-cell:last-child {
+  border-bottom: none;
+}
+
+/* Colores para el promedio */
+.text-green-600 { color: #28a745; } /* Verde */
+.text-yellow-600 { color: #ffc107; } /* Amarillo */
+.text-red-600 { color: #dc3545; } /* Rojo */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .notas-container {
+    padding: 15px;
+  }
+  .notas-card {
+    padding: 15px;
+  }
+  .notas-card mat-card-title {
+    font-size: 1.5em;
+  }
+  .mat-expansion-panel-header {
+    padding: 12px 15px;
+  }
+  .asignatura-title {
+    font-size: 1.1em;
+  }
+  .promedio-description {
+    font-size: 0.9em;
+  }
+  .mat-header-cell, .mat-cell {
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .notas-container {
+    padding: 10px;
+  }
+  .notas-card {
+    padding: 10px;
+  }
+  .notas-card mat-card-title {
+    font-size: 1.3em;
+  }
+  .mat-expansion-panel-header {
+    flex-direction: column; /* Apila título y descripción en móviles */
+    align-items: flex-start;
+  }
+  .promedio-description {
+    margin-top: 5px;
+  }
+}

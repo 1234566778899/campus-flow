@@ -1,0 +1,35 @@
+/* Contenedor principal del formulario */
+form {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 24px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Campos del formulario con margen inferior */
+mat-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Botones alineados a la derecha */
+div[style*="margin-top"] {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+  form {
+    padding: 16px;
+  }
+
+  div[style*="margin-top"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

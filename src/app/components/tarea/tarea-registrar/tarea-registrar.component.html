@@ -1,0 +1,356 @@
+<!-- Encabezado -->
+<div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button
+                    mat-icon-button
+                    (click)="onCancel()"
+                    class="text-gray-500 hover:text-gray-700">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Nueva
+                        Tarea</h1>
+                    <p class="text-gray-600 mt-1">Crea una nueva tarea
+                        académica</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    mat-button
+                    (click)="limpiarFormulario()"
+                    class="text-gray-600">
+                    <mat-icon>refresh</mat-icon>
+                    Limpiar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="px-6 pb-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Formulario Principal -->
+            <div class="lg:col-span-2">
+                <mat-card class="shadow-sm">
+                    <mat-card-header
+                        class="bg-gray-50 border-b border-gray-200">
+                        <mat-card-title
+                            class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <mat-icon class="text-blue-600">add_task</mat-icon>
+                            Información de la Tarea
+                        </mat-card-title>
+                    </mat-card-header>
+
+                    <mat-card-content class="p-6">
+                        <form [formGroup]="tareaForm" (ngSubmit)="onSubmit()"
+                            class="space-y-6">
+
+                            <!-- Título -->
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Título de la tarea</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="titulo"
+                                    placeholder="Ej: Ensayo sobre la revolución industrial"
+                                    maxlength="100">
+                                <mat-icon matSuffix>title</mat-icon>
+                                <mat-hint align="end">{{ titulo?.value?.length
+                                    || 0 }}/100</mat-hint>
+                                <mat-error
+                                    *ngIf="titulo?.invalid && titulo?.touched">
+                                    {{ getTituloError() }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Descripción -->
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Descripción</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="descripcion"
+                                    placeholder="Describe los detalles de la tarea, requisitos, objetivos..."
+                                    rows="4"
+                                    maxlength="500">
+                                </textarea>
+                                <mat-icon matSuffix>description</mat-icon>
+                                <mat-hint align="end">{{
+                                    descripcion?.value?.length || 0
+                                    }}/500</mat-hint>
+                                <mat-error
+                                    *ngIf="descripcion?.invalid && descripcion?.touched">
+                                    {{ getDescripcionError() }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Fecha Límite -->
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Fecha límite</mat-label>
+                                <input
+                                    matInput
+                                    [matDatepicker]="picker"
+                                    formControlName="fechaLimite"
+                                    placeholder="Selecciona una fecha">
+                                <mat-datepicker-toggle matSuffix
+                                    [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                                <mat-error
+                                    *ngIf="fechaLimite?.invalid && fechaLimite?.touched">
+                                    {{ getFechaLimiteError() }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Prioridad -->
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Prioridad</mat-label>
+                                <mat-select formControlName="prioridad">
+                                    <mat-option
+                                        *ngFor="let prioridad of prioridades"
+                                        [value]="prioridad.value">
+                                        <div class="flex items-center gap-2">
+                                            <span [class]="prioridad.color">{{
+                                                prioridad.label }}</span>
+                                        </div>
+                                    </mat-option>
+                                </mat-select>
+                                <mat-icon matSuffix>flag</mat-icon>
+                                <mat-error
+                                    *ngIf="prioridad?.invalid && prioridad?.touched">
+                                    {{ getPrioridadError() }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Asignatura -->
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Asignatura</mat-label>
+                                <mat-select formControlName="id_horario">
+                                    <mat-option
+                                        *ngFor="let horario of horarios"
+                                        [value]="horario.idHorario">
+                                        <div class="py-1">
+                                            <div class="font-medium">{{
+                                                horario.nombreAsignatura
+                                                }}</div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ horario.profesor }} • {{
+                                                horario.aula }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                </mat-select>
+                                <mat-icon matSuffix>school</mat-icon>
+                                <mat-error
+                                    *ngIf="id_horario?.invalid && id_horario?.touched">
+                                    {{ getHorarioError() }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Botones de acción -->
+                            <div
+                                class="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                                <button
+                                    mat-button
+                                    type="button"
+                                    (click)="onCancel()"
+                                    [disabled]="isLoading">
+                                    Cancelar
+                                </button>
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    type="submit"
+                                    [disabled]="isLoading || tareaForm.invalid">
+                                    <mat-spinner
+                                        *ngIf="isLoading"
+                                        diameter="20"
+                                        class="mr-2">
+                                    </mat-spinner>
+                                    <mat-icon *ngIf="!isLoading">save</mat-icon>
+                                    {{ isLoading ? 'Guardando...' :
+                                    'Crear Tarea' }}
+                                </button>
+                            </div>
+
+                        </form>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+
+            <!-- Panel de Previsualización -->
+            <div class="lg:col-span-1">
+                <mat-card class="shadow-sm sticky top-6">
+                    <mat-card-header
+                        class="bg-gray-50 border-b border-gray-200">
+                        <mat-card-title
+                            class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <mat-icon
+                                class="text-green-600">visibility</mat-icon>
+                            Previsualización
+                        </mat-card-title>
+                    </mat-card-header>
+
+                    <mat-card-content class="p-6">
+                        <div *ngIf="previsualizarTarea(); let preview"
+                            class="space-y-4">
+                            <!-- Título -->
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-1">
+                                    {{ preview.titulo || 'Título de la tarea' }}
+                                </h3>
+                                <p class="text-sm text-gray-600">
+                                    {{ preview.descripcion ||
+                                    'Descripción de la tarea...' }}
+                                </p>
+                            </div>
+
+                            <!-- Información adicional -->
+                            <div class="space-y-3">
+                                <!-- Asignatura -->
+                                <div class="flex items-center gap-3">
+                                    <mat-icon
+                                        class="text-blue-500">school</mat-icon>
+                                    <span class="text-gray-700">
+                                        {{ preview.asignatura ||
+                                        'Selecciona una asignatura' }}
+                                    </span>
+                                </div>
+
+                                <!-- Fecha límite -->
+                                <div class="flex items-center gap-3">
+                                    <mat-icon
+                                        class="text-gray-500">event</mat-icon>
+                                    <span class="text-gray-700">
+                                        {{ preview.fechaLimite ?
+                                        (preview.fechaLimite |
+                                        date:'dd/MM/yyyy') : 'Sin fecha límite'
+                                        }}
+                                    </span>
+                                </div>
+
+                                <!-- Prioridad -->
+                                <div class="flex items-center gap-3">
+                                    <mat-icon
+                                        class="text-base"
+                                        [class.text-red-500]="preview.prioridad === 'alta'"
+                                        [class.text-yellow-500]="preview.prioridad === 'media'"
+                                        [class.text-green-500]="preview.prioridad === 'baja'">
+                                        {{ preview.prioridad === 'alta' ?
+                                        'priority_high' :
+                                        preview.prioridad === 'media' ? 'remove'
+                                        : 'keyboard_arrow_down' }}
+                                    </mat-icon>
+                                    <span
+                                        [class.text-red-600]="preview.prioridad === 'alta'"
+                                        [class.text-yellow-600]="preview.prioridad === 'media'"
+                                        [class.text-green-600]="preview.prioridad === 'baja'">
+                                        Prioridad {{ preview.prioridad |
+                                        titlecase }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Chips informativos -->
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <mat-chip-listbox>
+                                    <mat-chip-option
+                                        [class.bg-red-100]="preview.prioridad === 'alta'"
+                                        [class.text-red-800]="preview.prioridad === 'alta'"
+                                        [class.bg-yellow-100]="preview.prioridad === 'media'"
+                                        [class.text-yellow-800]="preview.prioridad === 'media'"
+                                        [class.bg-green-100]="preview.prioridad === 'baja'"
+                                        [class.text-green-800]="preview.prioridad === 'baja'"
+                                        disabled>
+                                        Prioridad {{ preview.prioridad |
+                                        titlecase }}
+                                    </mat-chip-option>
+                                </mat-chip-listbox>
+
+                                <mat-chip-listbox *ngIf="preview.fechaLimite">
+                                    <mat-chip-option
+                                        class="bg-blue-100 text-blue-800"
+                                        disabled>
+                                        {{ preview.fechaLimite |
+                                        date:'dd/MM/yyyy' }}
+                                    </mat-chip-option>
+                                </mat-chip-listbox>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!previsualizarTarea()"
+                            class="text-center text-gray-500 py-8">
+                            <mat-icon
+                                class="text-4xl mb-4 text-gray-300">assignment</mat-icon>
+                            <p class="text-sm">
+                                Completa el formulario para ver la
+                                previsualización
+                            </p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Consejos -->
+                <mat-card class="shadow-sm mt-6">
+                    <mat-card-header
+                        class="bg-blue-50 border-b border-blue-200">
+                        <mat-card-title
+                            class="text-lg font-semibold text-blue-900 flex items-center gap-2">
+                            <mat-icon class="text-blue-600">lightbulb</mat-icon>
+                            Consejos
+                        </mat-card-title>
+                    </mat-card-header>
+
+                    <mat-card-content class="p-4">
+                        <mat-list class="space-y-2">
+                            <mat-list-item class="flex items-start gap-3">
+                                <mat-icon matListItemIcon
+                                    class="text-blue-500">check_circle</mat-icon>
+                                <div matListItemTitle
+                                    class="text-sm text-gray-600">
+                                    Usa títulos descriptivos y concisos
+                                </div>
+                            </mat-list-item>
+
+                            <mat-divider></mat-divider>
+
+                            <mat-list-item class="flex items-start gap-3">
+                                <mat-icon matListItemIcon
+                                    class="text-blue-500">check_circle</mat-icon>
+                                <div matListItemTitle
+                                    class="text-sm text-gray-600">
+                                    Incluye todos los detalles relevantes en la
+                                    descripción
+                                </div>
+                            </mat-list-item>
+
+                            <mat-divider></mat-divider>
+
+                            <mat-list-item class="flex items-start gap-3">
+                                <mat-icon matListItemIcon
+                                    class="text-blue-500">check_circle</mat-icon>
+                                <div matListItemTitle
+                                    class="text-sm text-gray-600">
+                                    Establece fechas límite realistas
+                                </div>
+                            </mat-list-item>
+
+                            <mat-divider></mat-divider>
+
+                            <mat-list-item class="flex items-start gap-3">
+                                <mat-icon matListItemIcon
+                                    class="text-blue-500">check_circle</mat-icon>
+                                <div matListItemTitle
+                                    class="text-sm text-gray-600">
+                                    Asigna prioridades según la importancia
+                                </div>
+                            </mat-list-item>
+                        </mat-list>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+
+        </div>
+    </div>
+</div>

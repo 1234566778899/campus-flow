@@ -1,0 +1,71 @@
+/* src/app/pages/marcas/marcas.component.css */
+.marcas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Ocupa al menos el alto de la ventana */
+  background-color: #DFE1E0; /* Color de fondo consistente */
+  position: relative; /* Para posicionar el botón de retroceso si se añade */
+  padding: 20px; /* Espaciado general */
+  box-sizing: border-box; /* Incluir padding en el tamaño total */
+}
+
+/* Si decides añadir un botón de retroceso, puedes usar estos estilos */
+/*
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  display: block;
+}
+
+.back-button img {
+  width: 50px;
+  height: auto;
+  transition: transform 0.2s ease-in-out;
+}
+
+.back-button:hover img {
+  transform: scale(1.1);
+}
+*/
+
+.center-image3 {
+  /* Estas propiedades centrarán la imagen tanto horizontal como verticalmente */
+  max-width: 90%; /* Ajusta el tamaño máximo para ser responsivo */
+  height: auto;
+  display: block; /* Elimina el espacio extra debajo de la imagen */
+  margin-top: 0; /* No hay botón de retroceso por defecto, así que no necesita margen superior */
+}
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+  /* Si añades el back-button, descomenta y ajusta */
+  /*
+  .back-button {
+    top: 10px;
+    left: 10px;
+  }
+  .back-button img {
+    width: 40px;
+  }
+  */
+  .center-image3 {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Si añades el back-button, descomenta y ajusta */
+  /*
+  .back-button {
+    top: 5px;
+    left: 5px;
+  }
+  .back-button img {
+    width: 35px;
+  }
+  */
+}

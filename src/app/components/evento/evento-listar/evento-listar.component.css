@@ -1,0 +1,140 @@
+/* src/app/components/evento-listar/evento-listar.component.css */
+.evento-listar-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 64px);
+  box-sizing: border-box;
+}
+
+.evento-listar-card {
+  width: 100%;
+  max-width: 1200px; /* Ancho más amplio para la tabla de eventos */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.evento-listar-card mat-card-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px; /* Altura para el spinner */
+}
+
+.loading-spinner p {
+  margin-top: 15px;
+  color: #666;
+}
+
+.evento-table-container {
+  overflow-x: auto; /* Permite el scroll horizontal en tablas grandes */
+}
+
+.full-width-table {
+  width: 100%;
+  min-width: 700px; /* Asegura un ancho mínimo para la tabla */
+}
+
+.mat-column-nombre,
+.mat-column-descripcion {
+  flex: 2; /* Permite que estas columnas ocupen más espacio */
+}
+
+.mat-column-fechaInicio,
+.mat-column-fechaFin,
+.mat-column-puntajeRecompensa {
+  flex: 1;
+}
+
+.mat-column-acciones {
+  flex: 0 0 120px; /* Ancho fijo para las acciones */
+  text-align: center;
+}
+
+.mat-header-cell {
+  font-weight: 700;
+  color: #555;
+  background-color: #f8f8f8;
+}
+
+.mat-cell {
+  color: #444;
+}
+
+.mat-flat-button,
+.mat-stroked-button {
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mat-flat-button mat-icon,
+.mat-stroked-button mat-icon {
+  margin-right: 5px;
+}
+
+.no-data-row {
+  text-align: center;
+  font-style: italic;
+  color: #999;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 30px;
+  color: #777;
+  font-size: 1.1em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .evento-listar-container {
+    padding: 15px;
+  }
+  .evento-listar-card {
+    padding: 15px;
+  }
+  .evento-listar-card mat-card-title {
+    font-size: 1.5em;
+  }
+  /* La tabla se ajustará con overflow-x, pero las columnas pueden volverse más estrechas */
+}
+
+@media (max-width: 480px) {
+  .evento-listar-container {
+    padding: 10px;
+  }
+  .evento-listar-card {
+    padding: 10px;
+  }
+  .evento-listar-card mat-card-title {
+    font-size: 1.3em;
+  }
+  .actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .actions-row button {
+    margin-bottom: 10px;
+  }
+}

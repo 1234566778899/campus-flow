@@ -1,0 +1,133 @@
+/* src/app/components/publicacion-listar/publicacion-listar.component.css */
+.publicacion-container {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 64px);
+  box-sizing: border-box;
+}
+
+.publicacion-card {
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.publicacion-card mat-card-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: flex-start; /* Alinea los botones a la izquierda */
+  margin-bottom: 20px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #777;
+  font-size: 1.1em;
+}
+
+.loading-spinner mat-spinner {
+  margin-bottom: 15px;
+}
+
+.publicacion-table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.mat-header-cell {
+  background-color: #e0e0e0;
+  color: #333;
+  font-weight: 600;
+  padding: 10px 15px;
+  text-align: left;
+}
+
+.mat-cell {
+  padding: 10px 15px;
+  color: #555;
+  border-bottom: 1px solid #eee;
+}
+
+.mat-cell:last-child {
+  border-bottom: none;
+}
+
+.mat-row.no-data-row {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.mat-icon-button {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  font-size: 20px;
+}
+
+.mat-icon-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .publicacion-container {
+    padding: 15px;
+  }
+  .publicacion-card {
+    padding: 15px;
+  }
+  .publicacion-card mat-card-title {
+    font-size: 1.5em;
+  }
+  .mat-header-cell, .mat-cell {
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .publicacion-container {
+    padding: 10px;
+  }
+  .publicacion-card {
+    padding: 10px;
+  }
+  .publicacion-card mat-card-title {
+    font-size: 1.3em;
+  }
+  .mat-icon-button {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 18px;
+  }
+  .mat-icon-button mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}

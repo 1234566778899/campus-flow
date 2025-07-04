@@ -1,0 +1,219 @@
+<!-- index.component.html -->
+<section
+  class="home min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+
+  <!-- Elementos decorativos de fondo -->
+  <div
+    class="absolute top-0 left-0 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+  <div
+    class="absolute top-0 right-0 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+  <div
+    class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+
+  <!-- Contenido principal -->
+  <div class="content relative z-10">
+    <div class="container mx-auto px-6 lg:px-8">
+      <div
+        class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-screen py-8 pt-16">
+
+        <!-- Lado izquierdo: Contenido textual -->
+        <div class="text-center lg:text-left space-y-6">
+
+          <!-- Título principal -->
+          <div class="space-y-4">
+            <div
+              class="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-800 text-sm font-medium mb-4">
+              <mat-icon class="mr-2 text-sm">school</mat-icon>
+              Plataforma Educativa del Futuro
+            </div>
+
+            <h1
+              class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+              Transforma tu
+              <span
+                class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                experiencia
+              </span>
+              educativa
+            </h1>
+
+            <p class="text-lg text-gray-600 leading-relaxed max-w-2xl">
+              CampusFlow es la plataforma integral que conecta estudiantes,
+              profesores y administradores en un ecosistema educativo moderno y
+              eficiente.
+            </p>
+          </div>
+
+          <!-- Características destacadas -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+            <div
+              class="flex items-center justify-center lg:justify-start gap-2 text-gray-600">
+              <mat-icon class="text-green-500 text-lg">check_circle</mat-icon>
+              <span>Gestión de tareas</span>
+            </div>
+            <div
+              class="flex items-center justify-center lg:justify-start gap-2 text-gray-600">
+              <mat-icon class="text-green-500 text-lg">check_circle</mat-icon>
+              <span>Seguimiento académico</span>
+            </div>
+            <div
+              class="flex items-center justify-center lg:justify-start gap-2 text-gray-600">
+              <mat-icon class="text-green-500 text-lg">check_circle</mat-icon>
+              <span>Comunicación fluida</span>
+            </div>
+          </div>
+
+          <!-- Botones de descarga -->
+          <div
+            class="app-store-buttons flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <a
+              mat-flat-button
+              href="https://play.google.com/store"
+              target="_blank"
+              class="app-button google-play bg-black text-white hover:bg-gray-800 px-5 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl">
+              <mat-icon class="text-xl">android</mat-icon>
+              <div class="text-left">
+                <div class="text-xs opacity-80">Descarga en</div>
+                <div class="text-sm font-semibold">Google Play</div>
+              </div>
+            </a>
+
+            <a
+              mat-flat-button
+              href="https://www.apple.com/app-store/"
+              target="_blank"
+              class="app-button app-store bg-black text-white hover:bg-gray-800 px-5 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl">
+              <mat-icon class="text-xl">phone_iphone</mat-icon>
+              <div class="text-left">
+                <div class="text-xs opacity-80">Descarga en</div>
+                <div class="text-sm font-semibold">App Store</div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Estadísticas -->
+          <div class="grid grid-cols-3 gap-6 pt-6 border-t border-gray-200">
+            <div class="text-center lg:text-left">
+              <div class="text-xl font-bold text-gray-900">10K+</div>
+              <div class="text-sm text-gray-600">Estudiantes activos</div>
+            </div>
+            <div class="text-center lg:text-left">
+              <div class="text-xl font-bold text-gray-900">500+</div>
+              <div class="text-sm text-gray-600">Instituciones</div>
+            </div>
+            <div class="text-center lg:text-left">
+              <div class="text-xl font-bold text-gray-900">98%</div>
+              <div class="text-sm text-gray-600">Satisfacción</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lado derecho: Imagen/Mockup -->
+        <div class="right-image-container flex justify-center lg:justify-end">
+          <div class="relative">
+            <!-- Mockup de la aplicación -->
+            <div
+              class="relative z-10 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+              <div class="bg-gray-900 rounded-3xl p-2 shadow-2xl max-w-sm">
+                <div class="bg-white rounded-2xl overflow-hidden">
+                  <!-- Header del mockup -->
+                  <div
+                    class="bg-blue-600 text-white p-4 flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                      <mat-icon class="text-blue-600 text-sm">school</mat-icon>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-sm">CampusFlow</div>
+                      <div class="text-xs opacity-80">Dashboard Estudiante</div>
+                    </div>
+                  </div>
+
+                  <!-- Contenido del mockup -->
+                  <div class="p-6 space-y-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <mat-icon class="text-blue-600">person</mat-icon>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-gray-900">¡Hola,
+                          Estudiante!</div>
+                        <div class="text-sm text-gray-600">Bienvenido de
+                          vuelta</div>
+                      </div>
+                    </div>
+
+                    <div class="space-y-3">
+                      <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                          <span class="text-sm font-medium">Matemáticas</span>
+                          <span
+                            class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Completado</span>
+                        </div>
+                      </div>
+                      <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                          <span class="text-sm font-medium">Historia</span>
+                          <span
+                            class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Pendiente</span>
+                        </div>
+                      </div>
+                      <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                          <span class="text-sm font-medium">Química</span>
+                          <span
+                            class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">En
+                            progreso</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Elementos decorativos flotantes -->
+            <div
+              class="absolute -top-4 -right-4 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+              <mat-icon class="text-white text-sm">star</mat-icon>
+            </div>
+            <div
+              class="absolute -bottom-4 -left-4 w-10 h-10 bg-green-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+              <mat-icon class="text-white text-sm">check</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de llamada a la acción -->
+  <div
+    class="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 backdrop-blur-sm border-t border-gray-200">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+        <div class="text-center md:text-left">
+          <div class="font-semibold text-gray-900">¿Listo para empezar?</div>
+          <div class="text-sm text-gray-600">Únete a miles de estudiantes que ya
+            están transformando su educación</div>
+        </div>
+        <div class="flex gap-3">
+          <!-- Botón corregido -->
+          <button
+            mat-flat-button
+            color="primary"
+            routerLink="/registro-selector"
+            class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 z-10">
+            Comenzar gratis
+          </button>
+          <button
+            mat-button
+            (click)="mostrarMasInfo()"
+            class="text-gray-600 hover:text-gray-900 px-4 py-2">
+            Saber más
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

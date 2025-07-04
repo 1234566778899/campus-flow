@@ -1,0 +1,199 @@
+<!-- Encabezado -->
+<div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Mis
+                    Recompensas</h1>
+                <p class="text-gray-600 mt-1">Canjea recompensas por tu buen
+                    rendimiento académico</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="px-6 mb-6">
+    <div class="flex flex-wrap gap-2">
+        <button
+            mat-button
+            [class]="filtroActivo === 'todas' ? 'bg-blue-100 text-blue-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('todas')">
+            Todas
+        </button>
+        <button
+            mat-button
+            [class]="filtroActivo === 'disponibles' ? 'bg-green-100 text-green-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('disponibles')">
+            Disponibles
+        </button>
+        <button
+            mat-button
+            [class]="filtroActivo === 'canjeadas' ? 'bg-gray-100 text-gray-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('canjeadas')">
+            Canjeadas
+        </button>
+    </div>
+</div>
+
+<!-- Lista de Recompensas -->
+<div class="px-6 pb-6">
+
+    <!-- Mensaje cuando no hay recompensas -->
+    <div *ngIf="recompensasFiltradas.length === 0" class="text-center py-12">
+        <div
+            class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-3xl">🎁</span>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No hay
+            recompensas</h3>
+        <p class="text-gray-500 mb-4">
+            No tienes recompensas {{ filtroActivo === 'todas' ? '' :
+            filtroActivo }} en este momento.
+        </p>
+        <p class="text-sm text-gray-400">
+            ¡Sigue estudiando y completando tareas para ganar más recompensas!
+        </p>
+    </div>
+
+    <!-- Grid de recompensas -->
+    <div *ngIf="recompensasFiltradas.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div
+            *ngFor="let recompensa of recompensasFiltradas"
+            class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden"
+            [class.opacity-60]="!recompensa.Estado">
+
+            <!-- Header de la tarjeta -->
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                            [class]="getPlatformaColor(recompensa.Plataforma)">
+                            {{ getPlatformaIcon(recompensa.Plataforma) }}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">{{
+                                recompensa.Plataforma }}</h3>
+                            <p class="text-sm text-gray-500">ID: #{{
+                                recompensa.IDRecompensa }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Menú de acciones -->
+                    <button
+                        mat-icon-button
+                        [matMenuTriggerFor]="menuAcciones"
+                        class="text-gray-500 hover:text-gray-700">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+
+                    <mat-menu #menuAcciones="matMenu">
+                        <button mat-menu-item
+                            (click)="abrirURL(recompensa.URL)">
+                            <mat-icon>open_in_new</mat-icon>
+                            <span>Abrir enlace</span>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="canjearRecompensa(recompensa)"
+                            [disabled]="!recompensa.Estado">
+                            <mat-icon>redeem</mat-icon>
+                            <span>{{ recompensa.Estado ? 'Canjear' :
+                                'Ya canjeada' }}</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item
+                            (click)="eliminarRecompensa(recompensa.IDRecompensa!)"
+                            class="text-red-600">
+                            <mat-icon>delete</mat-icon>
+                            <span>Eliminar</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+
+            <!-- Contenido de la tarjeta -->
+            <div class="p-4">
+                <!-- URL -->
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-1">Enlace:</p>
+                    <div class="flex items-center gap-2">
+                        <p
+                            class="text-sm font-mono bg-gray-50 px-2 py-1 rounded text-gray-700 truncate flex-1">
+                            {{ recompensa.URL }}
+                        </p>
+                        <button
+                            mat-icon-button
+                            (click)="abrirURL(recompensa.URL)"
+                            class="text-blue-600 hover:text-blue-800 flex-shrink-0">
+                            <mat-icon class="text-sm">open_in_new</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estado -->
+                <div class="flex items-center justify-between">
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [class]="getEstadoColor(recompensa.Estado)">
+                        <span class="w-2 h-2 rounded-full mr-1.5"
+                            [class.bg-green-500]="recompensa.Estado"
+                            [class.bg-gray-400]="!recompensa.Estado">
+                        </span>
+                        {{ getEstadoTexto(recompensa.Estado) }}
+                    </span>
+
+                    <!-- Botón de canje -->
+                    <button
+                        mat-flat-button
+                        [color]="recompensa.Estado ? 'primary' : ''"
+                        [disabled]="!recompensa.Estado"
+                        (click)="canjearRecompensa(recompensa)"
+                        class="text-sm"
+                        [class.bg-blue-600]="recompensa.Estado"
+                        [class.hover:bg-blue-700]="recompensa.Estado">
+                        <mat-icon class="mr-1 text-sm">
+                            {{ recompensa.Estado ? 'redeem' : 'check' }}
+                        </mat-icon>
+                        {{ recompensa.Estado ? 'Canjear' : 'Canjeada' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas rápidas -->
+<div class="px-6 py-4 bg-gray-50 border-t" *ngIf="recompensas.length > 0">
+    <div class="flex justify-center gap-8 text-sm text-gray-600">
+        <div class="text-center">
+            <div class="font-semibold text-lg text-gray-900">{{
+                recompensas.length }}</div>
+            <div>Total</div>
+        </div>
+        <div class="text-center">
+            <div class="font-semibold text-lg text-green-600">{{
+                getRecompensasDisponibles() }}</div>
+            <div>Disponibles</div>
+        </div>
+        <div class="text-center">
+            <div class="font-semibold text-lg text-gray-600">{{
+                getRecompensasCanjeadas() }}</div>
+            <div>Canjeadas</div>
+        </div>
+        <div class="text-center">
+            <div class="font-semibold text-lg text-blue-600">
+                {{ recompensas.length > 0 ? ((getRecompensasCanjeadas() /
+                recompensas.length) * 100).toFixed(0) : 0 }}%
+            </div>
+            <div>Progreso</div>
+        </div>
+    </div>
+</div>

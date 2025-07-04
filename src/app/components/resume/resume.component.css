@@ -1,0 +1,343 @@
+/* El .top-bar (ahora dashboard-top-bar) y sus sub-estilos están en dashboard-navbar.component.css */
+/* Por lo tanto, se eliminan de aquí */
+
+
+.main-content {
+    display: flex;
+    gap: 20px;
+    /* Espacio entre las columnas */
+    flex-grow: 1;
+}
+
+.left-panel {
+    flex: 2;
+    /* Ocupa más espacio en la izquierda */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-panel {
+    flex: 1;
+    /* Ocupa menos espacio en la derecha */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Card Styles */
+.section-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+}
+
+.greeting-card h2 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.greeting-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.new-assignment-button {
+    background-color: #4285F4;
+    /* Color azul de Google */
+    color: white;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+.new-assignment-button mat-icon {
+    margin-right: 5px;
+}
+
+.assignments-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.active-assignments {
+    font-size: 0.9em;
+    color: #999;
+    margin-bottom: 15px;
+}
+
+.assignment-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1em;
+    color: #555;
+}
+
+.assignment-item:last-child {
+    border-bottom: none;
+}
+
+.assignment-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    /* Color de fondo para el icono de estudiante */
+    margin-right: 15px;
+}
+
+.assignment-item span:first-of-type {
+    flex-grow: 1;
+}
+
+.assignment-status {
+    font-size: 0.9em;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.due-today {
+    background-color: #ffe0b2;
+    /* Naranja claro */
+    color: #fb8c00;
+    /* Naranja oscuro */
+}
+
+.due-tomorrow {
+    background-color: #c8e6c9;
+    /* Verde claro */
+    color: #43a047;
+    /* Verde oscuro */
+}
+
+.view-all-button {
+    width: 100%;
+    margin-top: 20px;
+    color: #4285F4;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.study-chart-placeholder {
+    width: 100%;
+    height: 200px;
+    /* Altura fija para el placeholder del gráfico */
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 0.9em;
+    overflow: hidden;
+    /* Asegura que la imagen no se desborde */
+}
+
+.study-chart-placeholder .chart-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Ajusta la imagen dentro del contenedor */
+}
+
+.calendar-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.day-header {
+    font-weight: 600;
+    color: #777;
+    padding-bottom: 8px;
+}
+
+.calendar-grid div {
+    padding: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-grid div:hover {
+    background-color: #f0f0f0;
+}
+
+/* Estilo para resaltar el día actual en el calendario */
+.current-day {
+    background-color: #1976d2 !important;
+    /* Un azul fuerte para el día actual */
+    color: white !important;
+    font-weight: bold;
+    border-radius: 50%;
+    /* Para que sea un círculo */
+}
+
+.highlighted-day {
+    background-color: #e3f2fd;
+    /* Azul claro para días con eventos */
+    color: #1976d2;
+    /* Azul más oscuro */
+    font-weight: 600;
+}
+
+.upcoming-events-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.event-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+}
+
+.event-day {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #4285F4;
+    margin-right: 15px;
+    line-height: 1;
+    /* Alineación vertical */
+}
+
+.event-details {
+    flex-grow: 1;
+}
+
+.event-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.event-time {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.event-description {
+    font-size: 0.85em;
+    color: #999;
+}
+
+.highlighted-event {
+    background-color: #e3f2fd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.view-full-calendar-button {
+    width: 100%;
+    margin-top: 20px;
+    color: #4285F4;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .left-panel,
+    .right-panel {
+        flex: none;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-layout {
+        padding: 15px;
+    }
+
+    .section-card {
+        padding: 20px;
+    }
+
+    .greeting-card h2 {
+        font-size: 1.5em;
+    }
+
+    .assignments-card .mat-card-title,
+    .calendar-card .mat-card-title,
+    .upcoming-events-card .mat-card-title {
+        font-size: 1.2em;
+    }
+
+    .calendar-grid div {
+        padding: 6px 0;
+    }
+
+    .event-day {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-layout {
+        padding: 10px;
+    }
+
+    .section-card {
+        padding: 15px;
+    }
+
+    .new-assignment-button {
+        font-size: 0.9em;
+        padding: 8px 15px;
+    }
+
+    .assignment-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .assignment-icon {
+        margin-bottom: 10px;
+    }
+
+    .assignment-item span:first-of-type {
+        margin-bottom: 5px;
+    }
+
+    .assignment-status {
+        width: fit-content;
+    }
+
+    .event-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .event-day {
+        margin-bottom: 10px;
+    }
+}

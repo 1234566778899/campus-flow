@@ -1,0 +1,82 @@
+/* src/app/components/publicacion-registro/publicacion-registro.component.css */
+.publicacion-registro-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinea al inicio verticalmente */
+  padding: 30px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 64px); /* Ajusta si tienes un navbar superior */
+  box-sizing: border-box;
+}
+
+.publicacion-registro-card {
+  width: 100%;
+  max-width: 600px; /* Un ancho razonable para un formulario */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.publicacion-registro-card mat-card-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.full-width-input {
+  width: 100%;
+  margin-bottom: 15px; /* Espacio entre campos */
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end; /* Alinea los botones a la derecha */
+  margin-top: 20px;
+}
+
+.mat-flat-button {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+.mat-stroked-button {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .publicacion-registro-container {
+    padding: 15px;
+  }
+  .publicacion-registro-card {
+    padding: 15px;
+  }
+  .publicacion-registro-card mat-card-title {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 480px) {
+  .publicacion-registro-container {
+    padding: 10px;
+  }
+  .publicacion-registro-card {
+    padding: 10px;
+  }
+  .publicacion-registro-card mat-card-title {
+    font-size: 1.3em;
+  }
+  .form-actions {
+    flex-direction: column; /* Apila los botones en pantallas pequeñas */
+    align-items: stretch; /* Estira los botones para ocupar todo el ancho */
+  }
+  .form-actions button {
+    margin-left: 0 !important; /* Elimina el margen izquierdo en botones apilados */
+    margin-bottom: 10px; /* Espacio entre botones apilados */
+  }
+}

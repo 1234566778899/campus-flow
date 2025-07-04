@@ -1,0 +1,349 @@
+/* src/app/components/dashboard/profesor-dashboard/profesor-dashboard.component.css */
+.dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f2f5;
+    /* Un gris claro para el fondo del dashboard */
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* El .top-bar (ahora dashboard-top-bar) y sus sub-estilos están en dashboard-navbar.component.css */
+/* Por lo tanto, se eliminan de aquí */
+
+
+.main-content {
+    display: flex;
+    gap: 20px;
+    /* Espacio entre las columnas */
+    flex-grow: 1;
+}
+
+.left-panel {
+    flex: 2;
+    /* Ocupa más espacio en la izquierda */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-panel {
+    flex: 1;
+    /* Ocupa menos espacio en la derecha */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Card Styles */
+.section-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+}
+
+.greeting-card h2 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.greeting-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.dashboard-action-button {
+    background-color: #4285F4;
+    /* Color azul de Google */
+    color: white;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+.dashboard-action-button mat-icon {
+    margin-right: 5px;
+}
+
+.assignments-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.quick-action-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1em;
+    color: #555;
+}
+
+.quick-action-item:last-child {
+    border-bottom: none;
+}
+
+.action-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4285F4;
+    /* Color del icono */
+}
+
+.quick-action-item span {
+    flex-grow: 1;
+}
+
+.action-button {
+    color: #4285F4;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.view-all-button {
+    width: 100%;
+    margin-top: 10px;
+    /* Ajustado para múltiples botones */
+    color: #4285F4;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.study-hours-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.forum-post-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.forum-post-item:last-child {
+    border-bottom: none;
+}
+
+.post-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.post-meta {
+    font-size: 0.85em;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.post-content {
+    font-size: 0.8em;
+    color: #999;
+}
+
+.no-data-message {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+.calendar-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.day-header {
+    font-weight: 600;
+    color: #777;
+    padding-bottom: 8px;
+}
+
+.calendar-grid div {
+    padding: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-grid div:hover {
+    background-color: #f0f0f0;
+}
+
+.current-day {
+    background-color: #e3f2fd;
+    /* Azul claro para el día actual */
+    color: #1976d2;
+    /* Azul más oscuro */
+    font-weight: 600;
+}
+
+.upcoming-events-card .mat-card-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.event-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+}
+
+.event-day {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #4285F4;
+    margin-right: 15px;
+    line-height: 1;
+}
+
+.event-details {
+    flex-grow: 1;
+}
+
+.event-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.event-time {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.event-description {
+    font-size: 0.85em;
+    color: #999;
+}
+
+.no-events-message {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+.view-full-calendar-button {
+    width: 100%;
+    margin-top: 20px;
+    color: #4285F4;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments (similar a estudiante-dashboard.component.css) */
+@media (max-width: 1024px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .left-panel,
+    .right-panel {
+        flex: none;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-layout {
+        padding: 15px;
+    }
+
+    .section-card {
+        padding: 20px;
+    }
+
+    .greeting-card h2 {
+        font-size: 1.5em;
+    }
+
+    .assignments-card .mat-card-title,
+    .calendar-card .mat-card-title,
+    .upcoming-events-card .mat-card-title,
+    .study-hours-card .mat-card-title {
+        font-size: 1.2em;
+    }
+
+    .calendar-grid div {
+        padding: 6px 0;
+    }
+
+    .event-day {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-layout {
+        padding: 10px;
+    }
+
+    .section-card {
+        padding: 15px;
+    }
+
+    .dashboard-action-button,
+    .view-all-button {
+        font-size: 0.9em;
+        padding: 8px 15px;
+    }
+
+    .quick-action-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .action-icon {
+        margin-bottom: 10px;
+    }
+
+    .quick-action-item span {
+        margin-bottom: 5px;
+    }
+
+    .action-button {
+        width: fit-content;
+    }
+
+    .event-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .event-day {
+        margin-bottom: 10px;
+    }
+}

@@ -1,0 +1,78 @@
+/* src/app/pages/nosotros/nosotros.component.css */
+.nosotros-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  /* Ocupa al menos el alto de la ventana */
+  background-color: #DFE1E0;
+  /* Color de fondo consistente */
+  position: relative;
+  /* Para posicionar el botón de retroceso */
+  padding: 20px;
+  /* Espaciado general */
+  box-sizing: border-box;
+  /* Incluir padding en el tamaño total */
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  /* Asegura que el botón esté por encima de otros elementos */
+  display: block;
+  /* Asegura que el enlace se comporte como un bloque */
+}
+
+.back-button img {
+  width: 50px;
+  /* Ajusta el tamaño de la imagen según tus necesidades */
+  height: auto;
+  transition: transform 0.2s ease-in-out;
+  /* Suaviza la animación al pasar el ratón */
+}
+
+.back-button:hover img {
+  transform: scale(1.1);
+  /* Efecto de escala al pasar el ratón */
+}
+
+.center-image4 {
+  /* Estas propiedades centrarán la imagen tanto horizontal como verticalmente */
+  max-width: 90%;
+  /* Ajusta el tamaño máximo para ser responsivo */
+  height: auto;
+  display: block;
+  /* Elimina el espacio extra debajo de la imagen */
+  margin-top: 50px;
+  /* Espacio para el botón de retroceso si no está superpuesto */
+}
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+  .back-button {
+    top: 10px;
+    left: 10px;
+  }
+
+  .back-button img {
+    width: 40px;
+  }
+
+  .center-image4 {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-button {
+    top: 5px;
+    left: 5px;
+  }
+
+  .back-button img {
+    width: 35px;
+  }
+}

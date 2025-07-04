@@ -1,0 +1,36 @@
+<!-- src/app/components/publicacion-registro/publicacion-registro.component.html -->
+<div class="publicacion-registro-container">
+  <mat-card class="publicacion-registro-card">
+    <mat-card-header>
+      <mat-card-title>Registrar Nueva Publicación</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="publicacionForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width-input">
+          <mat-label>Contenido de la Publicación</mat-label>
+          <textarea matInput formControlName="contenido" rows="5" placeholder="Escribe tu publicación aquí..." required></textarea>
+          <mat-error *ngIf="publicacionForm.get('contenido')?.hasError('required') && publicacionForm.get('contenido')?.touched">
+            El contenido es requerido.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width-input">
+          <mat-label>Etiqueta (Label)</mat-label>
+          <input matInput formControlName="label" placeholder="Ej. Duda, Anuncio, Debate" required>
+          <mat-error *ngIf="publicacionForm.get('label')?.hasError('required') && publicacionForm.get('label')?.touched">
+            La etiqueta es requerida.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="publicacionForm.invalid">
+            <mat-icon>send</mat-icon> Publicar
+          </button>
+          <button mat-stroked-button color="warn" type="button" (click)="goBack()" style="margin-left: 10px;">
+            <mat-icon>cancel</mat-icon> Cancelar
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

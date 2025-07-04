@@ -1,0 +1,377 @@
+<div class="main-content">
+    <div class="left-panel">
+        <mat-card class="section-card greeting-card">
+            <mat-card-content>
+                <h2>Buen día, Estudiante</h2>
+                <p>Rastrea progreso académico con las notas de tus
+                    asignaciones.</p>
+                <button mat-flat-button color="primary"
+                    class="new-assignment-button">
+                    <mat-icon>add</mat-icon> Ver notas
+                </button>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card assignments-card shadow-sm">
+            <mat-card-header class="pb-2">
+                <mat-card-title
+                    class="flex items-center justify-between w-full">
+                    <span class="text-lg font-semibold text-gray-900">Tus
+                        tareas</span> <br>
+                    <span class="text-sm font-normal text-gray-500">{{
+                        tareasActivas.length }} activas</span>
+                </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content class="pt-4">
+
+                <!-- Mensaje cuando no hay tareas -->
+                <div *ngIf="tareasActivas.length === 0"
+                    class="text-center py-12">
+                    <div
+                        class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <mat-icon
+                            class="text-2xl text-green-600">assignment_turned_in</mat-icon>
+                    </div>
+                    <p class="text-gray-600 font-medium mb-1">¡Excelente
+                        trabajo!</p>
+                    <p class="text-gray-500 text-sm">No tienes tareas
+                        pendientes</p>
+                </div>
+
+                <!-- Lista de tareas -->
+                <div *ngIf="tareasActivas.length > 0" class="space-y-4">
+
+                    <div
+                        *ngFor="let tarea of tareasActivas"
+                        class="assignment-item flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group">
+
+                        <!-- Icono de prioridad -->
+                        <div
+                            class="assignment-icon flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-xl"
+                            [class.bg-red-50]="tarea.prioridad === 'alta'"
+                            [class.bg-yellow-50]="tarea.prioridad === 'media'"
+                            [class.bg-green-50]="tarea.prioridad === 'baja'">
+                            {{ getPrioridadIcon(tarea.prioridad) }}
+                        </div>
+
+                        <!-- Contenido principal -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-4">
+
+                                <!-- Información de la tarea -->
+                                <div class="flex-1 min-w-0">
+                                    <h4
+                                        class="font-semibold text-gray-900 mb-1">{{
+                                        tarea.titulo }}</h4>
+                                    <p class="text-sm text-gray-600 mb-2">{{
+                                        tarea.asignatura }}</p>
+
+                                    <!-- Badge de prioridad -->
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+                                        [class.bg-red-100]="tarea.prioridad === 'alta'"
+                                        [class.text-red-700]="tarea.prioridad === 'alta'"
+                                        [class.bg-yellow-100]="tarea.prioridad === 'media'"
+                                        [class.text-yellow-700]="tarea.prioridad === 'media'"
+                                        [class.bg-green-100]="tarea.prioridad === 'baja'"
+                                        [class.text-green-700]="tarea.prioridad === 'baja'">
+                                        Prioridad {{ tarea.prioridad }}
+                                    </span>
+                                </div>
+
+                                <!-- Estado de vencimiento -->
+                                <div class="flex-shrink-0">
+                                    <span
+                                        class="assignment-status inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium"
+                                        [class.bg-red-100]="getClaseEstadoTarea(tarea) === 'due-today'"
+                                        [class.text-red-800]="getClaseEstadoTarea(tarea) === 'due-today'"
+                                        [class.bg-orange-100]="getClaseEstadoTarea(tarea) === 'due-tomorrow'"
+                                        [class.text-orange-800]="getClaseEstadoTarea(tarea) === 'due-tomorrow'"
+                                        [class.bg-blue-100]="getClaseEstadoTarea(tarea) === 'due-later'"
+                                        [class.text-blue-800]="getClaseEstadoTarea(tarea) === 'due-later'"
+                                        [class.bg-gray-100]="getClaseEstadoTarea(tarea) === 'overdue'"
+                                        [class.text-gray-800]="getClaseEstadoTarea(tarea) === 'overdue'">
+
+                                        <!-- Icono según el estado -->
+                                        <mat-icon class="w-4 h-4 mr-2"
+                                            [class.text-red-600]="getClaseEstadoTarea(tarea) === 'due-today'"
+                                            [class.text-orange-600]="getClaseEstadoTarea(tarea) === 'due-tomorrow'"
+                                            [class.text-blue-600]="getClaseEstadoTarea(tarea) === 'due-later'"
+                                            [class.text-gray-600]="getClaseEstadoTarea(tarea) === 'overdue'">
+                                            {{ getClaseEstadoTarea(tarea) ===
+                                            'due-today' ||
+                                            getClaseEstadoTarea(tarea) ===
+                                            'due-tomorrow' ? 'schedule' :
+                                            getClaseEstadoTarea(tarea) ===
+                                            'overdue' ? 'warning' : 'event' }}
+                                        </mat-icon>
+
+                                        {{ getEstadoTarea(tarea) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón para ver todas -->
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <button
+                        mat-button
+                        class="view-all-button w-full text-blue-600 hover:bg-blue-50 font-medium py-3"
+                        (click)="navegarATareas()">
+                        <mat-icon class="mr-2">assignment</mat-icon>
+                        Ver todas las tareas
+                    </button>
+                </div>
+
+                <!-- Resumen rápido si hay muchas tareas -->
+                <div *ngIf="tareasActivas.length >= 3"
+                    class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-center gap-3">
+                        <mat-icon class="text-blue-600">info</mat-icon>
+                        <span class="text-blue-800 text-sm font-medium">
+                            Mostrando las 3 tareas más urgentes. Tienes más
+                            tareas pendientes.
+                        </span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card study-hours-card shadow-sm">
+            <mat-card-header class="pb-2">
+                <mat-card-title
+                    class="flex items-center justify-between w-full">
+                    <span class="text-lg font-semibold text-gray-900">Progreso
+                        de estudio</span><br>
+                    <span class="text-sm font-normal text-gray-500">{{
+                        estadisticasEstudio.horasSemanales }}h / {{
+                        estadisticasEstudio.metaSemanal }}h</span>
+                </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content class="pt-4">
+
+                <!-- Barra de progreso principal -->
+                <div class="mb-6">
+                    <div
+                        class="flex justify-between text-sm text-gray-600 mb-3">
+                        <span class="font-medium">Meta semanal</span>
+                        <span class="font-bold text-blue-600">{{
+                            getProgresoSemanal() }}%</span>
+                    </div>
+
+                    <div
+                        class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div
+                            class="h-4 rounded-full transition-all duration-700 ease-out"
+                            [class.bg-gradient-to-r]="true"
+                            [class.from-blue-500]="getProgresoSemanal() < 100"
+                            [class.to-blue-600]="getProgresoSemanal() < 100"
+                            [class.from-green-500]="getProgresoSemanal() >= 100"
+                            [class.to-green-600]="getProgresoSemanal() >= 100"
+                            [style.width.%]="getProgresoSemanal()">
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>0h</span>
+                        <span>{{ estadisticasEstudio.metaSemanal }}h</span>
+                    </div>
+                </div>
+
+                <!-- Gráfico de barras por día -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-700 mb-4">Horas por
+                        día</h4>
+
+                    <div
+                        class="flex items-end justify-between gap-2 h-32 bg-gray-50 rounded-lg p-4">
+                        <div
+                            *ngFor="let diaData of estadisticasEstudio.horasPorDia"
+                            class="flex flex-col items-center flex-1">
+
+                            <!-- Barra -->
+                            <div
+                                class="w-full flex flex-col justify-end h-20 mb-2">
+                                <div
+                                    class="w-full rounded-t-md transition-all duration-500 ease-out relative group cursor-pointer"
+                                    [class]="getColorBarra(diaData.horas)"
+                                    [style.height.%]="getAlturaBarra(diaData.horas)"
+                                    [class.ring-2]="esDiaActual(diaData.dia)"
+                                    [class.ring-blue-400]="esDiaActual(diaData.dia)"
+                                    [class.shadow-lg]="esDiaActual(diaData.dia)">
+
+                                    <!-- Tooltip con las horas -->
+                                    <div
+                                        class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                        {{ diaData.horas }}h
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Etiqueta del día -->
+                            <span
+                                class="text-xs text-center font-medium"
+                                [class.text-blue-600]="esDiaActual(diaData.dia)"
+                                [class.font-bold]="esDiaActual(diaData.dia)"
+                                [class.text-gray-600]="!esDiaActual(diaData.dia)">
+                                {{ diaData.dia }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas detalladas -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+
+                    <!-- Horas hoy -->
+                    <div class="text-center p-3 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">{{
+                            estadisticasEstudio.horasHoy }}</div>
+                        <div class="text-xs text-blue-700">Horas hoy</div>
+                    </div>
+
+                    <!-- Racha -->
+                    <div class="text-center p-3 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">{{
+                            estadisticasEstudio.racha }}</div>
+                        <div class="text-xs text-green-700">Días seguidos</div>
+                    </div>
+
+                    <!-- Horas restantes -->
+                    <div class="text-center p-3 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600">{{
+                            getHorasRestantes() }}</div>
+                        <div class="text-xs text-purple-700">Faltan</div>
+                    </div>
+                </div>
+
+                <!-- Mensaje motivacional -->
+                <div
+                    class="p-4 rounded-lg border-l-4"
+                    [class.bg-green-50]="getProgresoSemanal() >= 100"
+                    [class.border-green-400]="getProgresoSemanal() >= 100"
+                    [class.bg-blue-50]="getProgresoSemanal() >= 80 && getProgresoSemanal() < 100"
+                    [class.border-blue-400]="getProgresoSemanal() >= 80 && getProgresoSemanal() < 100"
+                    [class.bg-yellow-50]="getProgresoSemanal() >= 50 && getProgresoSemanal() < 80"
+                    [class.border-yellow-400]="getProgresoSemanal() >= 50 && getProgresoSemanal() < 80"
+                    [class.bg-red-50]="getProgresoSemanal() < 50"
+                    [class.border-red-400]="getProgresoSemanal() < 50">
+
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full flex items-center justify-center text-sm"
+                            [class.bg-green-100]="getProgresoSemanal() >= 100"
+                            [class.text-green-600]="getProgresoSemanal() >= 100"
+                            [class.bg-blue-100]="getProgresoSemanal() >= 80 && getProgresoSemanal() < 100"
+                            [class.text-blue-600]="getProgresoSemanal() >= 80 && getProgresoSemanal() < 100"
+                            [class.bg-yellow-100]="getProgresoSemanal() >= 50 && getProgresoSemanal() < 80"
+                            [class.text-yellow-600]="getProgresoSemanal() >= 50 && getProgresoSemanal() < 80"
+                            [class.bg-red-100]="getProgresoSemanal() < 50"
+                            [class.text-red-600]="getProgresoSemanal() < 50">
+                            {{ getProgresoSemanal() >= 100 ? '🎉' :
+                            getProgresoSemanal() >= 80 ? '💪' :
+                            getProgresoSemanal() >= 50 ? '📚' : '🚀' }}
+                        </div>
+
+                        <div>
+                            <p
+                                class="text-sm font-medium"
+                                [class.text-green-800]="getProgresoSemanal() >= 100"
+                                [class.text-blue-800]="getProgresoSemanal() >= 80 && getProgresoSemanal() < 100"
+                                [class.text-yellow-800]="getProgresoSemanal() >= 50 && getProgresoSemanal() < 80"
+                                [class.text-red-800]="getProgresoSemanal() < 50">
+                                {{ getMensajeMotivacional() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Right Section (Calendar and Upcoming Events) -->
+    <div class="right-panel">
+        <mat-card class="section-card calendar-card">
+            <mat-card-header>
+                <mat-card-title>{{ fechaActual | date:'MMMM yyyy' |
+                    titlecase
+                    }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="calendar-grid">
+                    <div class="day-header">Lun</div>
+                    <div class="day-header">Mar</div>
+                    <div class="day-header">Mié</div>
+                    <div class="day-header">Jue</div>
+                    <div class="day-header">Vie</div>
+                    <div class="day-header">Sáb</div>
+                    <div class="day-header">Dom</div>
+                    <div *ngFor="let diaInfo of diasDelCalendario"
+                        [ngClass]="{ 'current-day': diaInfo.esHoy }">
+                        {{ diaInfo.dia }}
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card upcoming-events-card">
+            <mat-card-header>
+                <mat-card-title>Próximos eventos</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="event-item">
+                    <span class="event-day">2</span>
+                    <div class="event-details">
+                        <p class="event-title">Conferencia de Invitados</p>
+                        <p class="event-time">10:00-11:00</p>
+                        <p class="event-description">5 de 5 sesiones, Dr.
+                            Smith</p>
+                    </div>
+                </div>
+                <div class="event-item highlighted-event">
+                    <span class="event-day">5</span>
+                    <div class="event-details">
+                        <p class="event-title">Feria de Carreras</p>
+                        <p class="event-time">13:00-16:00</p>
+                        <p class="event-description">Abierto a todos los
+                            estudiantes</p>
+                    </div>
+                </div>
+                <div class="event-item">
+                    <span class="event-day">8</span>
+                    <div class="event-details">
+                        <p class="event-title">Taller</p>
+                        <p class="event-time">14:00-15:30</p>
+                        <p class="event-description">3 de 5 sesiones, Ms.
+                            Taylor</p>
+                    </div>
+                </div>
+                <div class="event-item">
+                    <span class="event-day">1</span>
+                    <div class="event-details">
+                        <p class="event-title">Reunión de equipo</p>
+                        <p class="event-time">09:00-10:00</p>
+                        <p class="event-description">Evento recurrente</p>
+                    </div>
+                </div>
+                <div class="event-item">
+                    <span class="event-day">9</span>
+                    <div class="event-details">
+                        <p class="event-title">Grupo de estudio semanal</p>
+                        <p class="event-time">17:00-18:30</p>
+                        <p class="event-description">Cada miércoles</p>
+                    </div>
+                </div>
+                <button mat-button class="view-full-calendar-button">Ver
+                    calendario
+                    completo</button>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

@@ -1,0 +1,316 @@
+<!-- Encabezado -->
+<div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Mi Horario</h1>
+                <p class="text-gray-600 mt-1">Organiza tu semana académica</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Toggle de vista -->
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button
+                        mat-button
+                        [class]="vistaActual === 'semanal' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600'"
+                        class="rounded-md px-3 py-1 text-sm font-medium transition-all"
+                        (click)="cambiarVista('semanal')">
+                        <mat-icon
+                            class="mr-1 text-sm">calendar_view_week</mat-icon>
+                        Semanal
+                    </button>
+                    <button
+                        mat-button
+                        [class]="vistaActual === 'lista' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600'"
+                        class="rounded-md px-3 py-1 text-sm font-medium transition-all"
+                        (click)="cambiarVista('lista')">
+                        <mat-icon class="mr-1 text-sm">list</mat-icon>
+                        Lista
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información rápida -->
+<div class="px-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Próxima clase -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <mat-icon class="text-blue-600">schedule</mat-icon>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-blue-900">Próxima Clase</h3>
+                    <p class="text-blue-700 text-sm"
+                        *ngIf="getProximaClase(); let proxima">
+                        {{ proxima.asignatura?.nombre }} - {{
+                        formatearHora(proxima.horaInicio) }}
+                    </p>
+                    <p class="text-blue-700 text-sm" *ngIf="!getProximaClase()">
+                        No hay más clases hoy
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total de horas -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <mat-icon class="text-green-600">access_time</mat-icon>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-green-900">Horas
+                        Semanales</h3>
+                    <p class="text-green-700 text-sm">
+                        {{ getTotalHorasSemanales().toFixed(1) }} horas
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total de asignaturas -->
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <mat-icon class="text-purple-600">school</mat-icon>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-purple-900">Asignaturas</h3>
+                    <p class="text-purple-700 text-sm">
+                        {{ getTotalAsignaturas() }} materias
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vista Semanal -->
+<div *ngIf="vistaActual === 'semanal'" class="px-6 pb-6">
+    <div
+        class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <!-- Encabezados de días -->
+            <div class="grid grid-cols-7 border-b border-gray-200 min-w-full">
+                <div
+                    *ngFor="let dia of diasSemana"
+                    class="p-4 text-center font-medium border-r border-gray-200 last:border-r-0"
+                    [class.bg-blue-50]="esDiaActual(dia)"
+                    [class.text-blue-900]="esDiaActual(dia)"
+                    [class.bg-gray-50]="!esDiaActual(dia)"
+                    [class.text-gray-700]="!esDiaActual(dia)">
+                    <div class="text-sm font-semibold">{{ dia }}</div>
+                    <div class="text-xs mt-1 opacity-75">
+                        {{ getHorariosPorDia(dia).length }} clases
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido semanal -->
+            <div class="grid grid-cols-7 min-h-96">
+                <div
+                    *ngFor="let dia of diasSemana"
+                    class="border-r border-gray-200 last:border-r-0 p-2 space-y-2"
+                    [class.bg-blue-25]="esDiaActual(dia)">
+
+                    <!-- Clases del día -->
+                    <div
+                        *ngFor="let horario of getHorariosPorDia(dia)"
+                        class="rounded-lg p-3 text-white text-xs cursor-pointer hover:opacity-90 transition-opacity relative"
+                        [class]="horario.asignatura?.color || 'bg-gray-500'"
+                        [class.ring-2]="getClaseHorarioActual(horario)"
+                        [class.ring-yellow-400]="getClaseHorarioActual(horario)"
+                        [class.animate-pulse]="getClaseHorarioActual(horario)"
+                        [matMenuTriggerFor]="menuHorario">
+
+                        <div class="font-semibold text-xs mb-1 truncate">
+                            {{ horario.asignatura?.nombre }}
+                        </div>
+                        <div class="text-xs opacity-90 mb-1">
+                            {{ formatearHora(horario.horaInicio) }} - {{
+                            formatearHora(horario.horaFin) }}
+                        </div>
+                        <div class="text-xs opacity-75 truncate">
+                            {{ horario.asignatura?.aula }}
+                        </div>
+                        <div class="text-xs opacity-75 truncate">
+                            {{ horario.asignatura?.profesor }}
+                        </div>
+
+                        <!-- Indicador de clase actual -->
+                        <div
+                            *ngIf="getClaseHorarioActual(horario)"
+                            class="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse">
+                        </div>
+
+                        <mat-menu #menuHorario="matMenu">
+                            <button mat-menu-item
+                                (click)="toggleEstadoHorario(horario)">
+                                <mat-icon>{{ horario.Estado ? 'visibility_off' :
+                                    'visibility' }}</mat-icon>
+                                <span>{{ horario.Estado ? 'Desactivar' :
+                                    'Activar' }}</span>
+                            </button>
+                            <button mat-menu-item>
+                                <mat-icon>edit</mat-icon>
+                                <span>Editar</span>
+                            </button>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item
+                                (click)="eliminarHorario(horario.idHorario!)"
+                                class="text-red-600">
+                                <mat-icon>delete</mat-icon>
+                                <span>Eliminar</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+
+                    <!-- Mensaje cuando no hay clases -->
+                    <div
+                        *ngIf="getHorariosPorDia(dia).length === 0"
+                        class="text-center text-gray-400 text-xs py-8">
+                        <div class="mb-2">📅</div>
+                        <div>Sin clases</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vista Lista -->
+<div *ngIf="vistaActual === 'lista'" class="px-6 pb-6">
+    <div class="space-y-6">
+        <div *ngFor="let dia of diasSemana"
+            class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div
+                class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"
+                [class.bg-blue-50]="esDiaActual(dia)"
+                [class.border-blue-200]="esDiaActual(dia)">
+                <div class="flex items-center gap-3">
+                    <h3
+                        class="text-lg font-semibold"
+                        [class.text-blue-900]="esDiaActual(dia)"
+                        [class.text-gray-900]="!esDiaActual(dia)">
+                        {{ dia }}
+                    </h3>
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [class.bg-blue-100]="esDiaActual(dia)"
+                        [class.text-blue-800]="esDiaActual(dia)"
+                        [class.bg-gray-100]="!esDiaActual(dia)"
+                        [class.text-gray-800]="!esDiaActual(dia)">
+                        {{ getHorariosPorDia(dia).length }} clases
+                    </span>
+                    <span
+                        *ngIf="esDiaActual(dia)"
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Hoy
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- Lista de clases del día -->
+                <div *ngIf="getHorariosPorDia(dia).length > 0"
+                    class="space-y-3">
+                    <div
+                        *ngFor="let horario of getHorariosPorDia(dia)"
+                        class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+                        [class.ring-2]="getClaseHorarioActual(horario)"
+                        [class.ring-yellow-400]="getClaseHorarioActual(horario)"
+                        [class.bg-yellow-50]="getClaseHorarioActual(horario)">
+
+                        <div class="flex items-center gap-4">
+                            <!-- Indicador de color -->
+                            <div
+                                class="w-4 h-4 rounded-full flex-shrink-0"
+                                [class]="horario.asignatura?.color || 'bg-gray-500'">
+                            </div>
+
+                            <!-- Información de la clase -->
+                            <div>
+                                <h4 class="font-semibold text-gray-900">{{
+                                    horario.asignatura?.nombre }}</h4>
+                                <div
+                                    class="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                    <span class="flex items-center gap-1">
+                                        <mat-icon
+                                            class="text-sm">schedule</mat-icon>
+                                        {{ formatearHora(horario.horaInicio) }}
+                                        - {{ formatearHora(horario.horaFin) }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <mat-icon
+                                            class="text-sm">room</mat-icon>
+                                        {{ horario.asignatura?.aula }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <mat-icon
+                                            class="text-sm">person</mat-icon>
+                                        {{ horario.asignatura?.profesor }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="flex items-center gap-2">
+                            <span
+                                *ngIf="getClaseHorarioActual(horario)"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 animate-pulse">
+                                🔴 En curso
+                            </span>
+
+                            <button
+                                mat-icon-button
+                                [matMenuTriggerFor]="menuAcciones"
+                                class="text-gray-500 hover:text-gray-700">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+
+                            <mat-menu #menuAcciones="matMenu">
+                                <button mat-menu-item
+                                    (click)="toggleEstadoHorario(horario)">
+                                    <mat-icon>{{ horario.Estado ?
+                                        'visibility_off' : 'visibility'
+                                        }}</mat-icon>
+                                    <span>{{ horario.Estado ? 'Desactivar' :
+                                        'Activar' }}</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Editar</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item
+                                    (click)="eliminarHorario(horario.idHorario!)"
+                                    class="text-red-600">
+                                    <mat-icon>delete</mat-icon>
+                                    <span>Eliminar</span>
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje cuando no hay clases -->
+                <div *ngIf="getHorariosPorDia(dia).length === 0"
+                    class="text-center text-gray-400 py-8">
+                    <div
+                        class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-2xl">📅</span>
+                    </div>
+                    <p class="text-sm">No hay clases programadas para este
+                        día</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

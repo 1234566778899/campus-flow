@@ -1,0 +1,217 @@
+<!-- Encabezado -->
+<div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+    <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Mis Tareas</h1>
+                <p class="text-gray-600 mt-1">Gestiona y organiza tus tareas
+                    académicas</p>
+            </div>
+            <button mat-flat-button color="primary"
+                class="bg-blue-600 hover:bg-blue-700"
+                [routerLink]="['/dashboard-estudiante/tareas/nuevo']">
+
+                <mat-icon>add</mat-icon>
+                Nueva Tarea
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="px-6 mb-6">
+    <div class="flex flex-wrap gap-2">
+        <button
+            mat-button
+            [class]="filtroActivo === 'todas' ? 'bg-blue-100 text-blue-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('todas')">
+            Todas
+        </button>
+        <button
+            mat-button
+            [class]="filtroActivo === 'pendientes' ? 'bg-orange-100 text-orange-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('pendientes')">
+            Pendientes
+        </button>
+        <button
+            mat-button
+            [class]="filtroActivo === 'completadas' ? 'bg-green-100 text-green-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('completadas')">
+            Completadas
+        </button>
+        <button
+            mat-button
+            [class]="filtroActivo === 'vencidas' ? 'bg-red-100 text-red-800' : 'text-gray-600 hover:bg-gray-100'"
+            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
+            (click)="cambiarFiltro('vencidas')">
+            Vencidas
+        </button>
+    </div>
+</div>
+
+<!-- Lista de Tareas -->
+<div class="px-6 pb-6">
+    <div class="space-y-4">
+        <!-- Mensaje cuando no hay tareas -->
+        <div *ngIf="tareasFiltradas.length === 0" class="text-center py-12">
+            <mat-icon class="text-gray-300 text-6xl mb-4">assignment</mat-icon>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No hay
+                tareas</h3>
+            <p class="text-gray-500 mb-4">
+                No tienes tareas {{ filtroActivo === 'todas' ? '' : filtroActivo
+                }} en este momento.
+            </p>
+            <button mat-flat-button color="primary"
+                class="bg-blue-600 hover:bg-blue-700">
+                <mat-icon>add</mat-icon>
+                Crear nueva tarea
+            </button>
+        </div>
+
+        <!-- Tarjetas de tareas -->
+        <mat-card
+            *ngFor="let tarea of tareasFiltradas"
+            class="hover:shadow-md transition-shadow duration-200 border-l-4"
+            [class.border-l-red-500]="tarea.prioridad === 'alta' && !tarea.estado"
+            [class.border-l-yellow-500]="tarea.prioridad === 'media' && !tarea.estado"
+            [class.border-l-green-500]="tarea.prioridad === 'baja' && !tarea.estado"
+            [class.border-l-gray-400]="tarea.estado"
+            [class.opacity-60]="tarea.estado">
+
+            <mat-card-content class="p-6">
+                <div class="flex items-start justify-between">
+                    <!-- Contenido principal -->
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-3">
+                            <!-- Checkbox -->
+                            <mat-checkbox
+                                [checked]="tarea.estado"
+                                (change)="toggleEstadoTarea(tarea)"
+                                color="primary">
+                            </mat-checkbox>
+
+                            <!-- Título -->
+                            <h3 class="text-lg font-semibold text-gray-900"
+                                [class.line-through]="tarea.estado"
+                                [class.text-gray-500]="tarea.estado">
+                                {{ tarea.titulo }}
+                            </h3>
+                        </div>
+
+                        <!-- Descripción -->
+                        <p class="text-gray-600 mb-4 ml-11"
+                            [class.line-through]="tarea.estado">
+                            {{ tarea.descripcion }}
+                        </p>
+
+                        <!-- Chips de información -->
+                        <div class="flex flex-wrap gap-2 ml-11">
+                            <!-- Prioridad -->
+                            <mat-chip-listbox>
+                                <mat-chip-option
+                                    [class]="getPrioridadColor(tarea.prioridad)"
+                                    disabled>
+                                    <mat-icon class="mr-1 text-sm">{{
+                                        getPrioridadIcon(tarea.prioridad)
+                                        }}</mat-icon>
+                                    {{ tarea.prioridad | titlecase }}
+                                </mat-chip-option>
+                            </mat-chip-listbox>
+
+                            <!-- Estado de vencimiento -->
+                            <mat-chip-listbox>
+                                <mat-chip-option
+                                    [class]="getEstadoColorClass(tarea.fechaLimite, tarea.estado)"
+                                    disabled>
+                                    <mat-icon class="mr-1 text-sm">
+                                        {{
+                                        getEstadoVencimiento(tarea.fechaLimite,
+                                        tarea.estado) === 'completada' ?
+                                        'check_circle' : 'schedule' }}
+                                    </mat-icon>
+                                    {{ getEstadoTexto(tarea.fechaLimite,
+                                    tarea.estado) }}
+                                </mat-chip-option>
+                            </mat-chip-listbox>
+
+                            <!-- Fecha límite -->
+                            <mat-chip-listbox>
+                                <mat-chip-option
+                                    class="bg-gray-100 text-gray-700" disabled>
+                                    <mat-icon
+                                        class="mr-1 text-sm">event</mat-icon>
+                                    {{ tarea.fechaLimite | date:'dd/MM/yyyy' }}
+                                </mat-chip-option>
+                            </mat-chip-listbox>
+                        </div>
+                    </div>
+
+                    <!-- Menú de acciones -->
+                    <div class="flex items-center gap-2">
+                        <button
+                            mat-icon-button
+                            [matMenuTriggerFor]="menuAcciones"
+                            class="text-gray-500 hover:text-gray-700">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+
+                        <mat-menu #menuAcciones="matMenu">
+                            <button mat-menu-item (click)="editarTarea(tarea)">
+                                <mat-icon>edit</mat-icon>
+                                <span>Editar</span>
+                            </button>
+                            <button mat-menu-item
+                                (click)="toggleEstadoTarea(tarea)">
+                                <mat-icon>{{ tarea.estado ? 'undo' : 'check'
+                                    }}</mat-icon>
+                                <span>{{ tarea.estado ? 'Marcar pendiente' :
+                                    'Marcar completada' }}</span>
+                            </button>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item
+                                (click)="eliminarTarea(tarea.idTarea!)"
+                                class="text-red-600">
+                                <mat-icon>delete</mat-icon>
+                                <span>Eliminar</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+
+<!-- Estadísticas rápidas -->
+<div class="px-6 py-4 bg-gray-50 border-t">
+    <div class="flex justify-center gap-8 text-sm text-gray-600">
+
+        <div class="text-center">
+            <div class="font-semibold text-lg text-gray-900">{{ totalTareas
+                }}</div>
+            <div>Total</div>
+        </div>
+
+        <div class="text-center">
+            <div class="font-semibold text-lg text-orange-600">{{
+                tareasPendientes }}</div>
+            <div>Pendientes</div>
+        </div>
+
+        <div class="text-center">
+            <div class="font-semibold text-lg text-green-600">{{
+                tareasCompletadas }}</div>
+            <div>Completadas</div>
+        </div>
+
+        <div class="text-center">
+            <div class="font-semibold text-lg text-red-600">{{ tareasVencidas
+                }}</div>
+            <div>Vencidas</div>
+        </div>
+
+    </div>
+</div>
