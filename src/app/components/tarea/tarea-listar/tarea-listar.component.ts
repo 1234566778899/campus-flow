@@ -8,16 +8,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RouterModule } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
-export interface Tarea {
-  idTarea?: number;
-  titulo: string;
-  descripcion: string;
-  fechaLimite: Date;
-  prioridad: string;
-  id_estudiante: number;
-  id_horario: number;
-  estado: boolean;
-}
+import { TareaService } from '../../../services/tarea.service';
+import { Tarea } from '../../../model/tarea';
+
 
 @Component({
   selector: 'app-tarea-listar',
@@ -95,9 +88,11 @@ export class TareaListarComponent implements OnInit {
       estado: false
     }
   ];
+  constructor(private tareaService: TareaService) {
 
+  }
   ngOnInit() {
-    this.cargarTareas();
+    this.getTareas();
   }
 
   cargarTareas() {
@@ -105,7 +100,18 @@ export class TareaListarComponent implements OnInit {
     this.tareas = this.tareasEjemplo;
     this.aplicarFiltro();
   }
-
+  getTareas() {
+    this.tareaService.listar().subscribe(
+      (data: Tarea[]) => {
+        console.log(data);
+        this.tareas = data;
+        this.aplicarFiltro();
+      },
+      err => {
+        console.log(err);
+      }
+    )
+  }
   aplicarFiltro() {
     switch (this.filtroActivo) {
       case 'pendientes':
@@ -123,7 +129,6 @@ export class TareaListarComponent implements OnInit {
         this.tareasFiltradas = [...this.tareas];
     }
 
-    // Ordenar por fecha límite
     this.tareasFiltradas.sort((a, b) =>
       new Date(a.fechaLimite).getTime() - new Date(b.fechaLimite).getTime()
     );
@@ -136,7 +141,6 @@ export class TareaListarComponent implements OnInit {
 
   toggleEstadoTarea(tarea: Tarea) {
     tarea.estado = !tarea.estado;
-    // Aquí harías la actualización en el backend
     console.log('Tarea actualizada:', tarea);
   }
 

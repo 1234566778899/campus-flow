@@ -1,5 +1,5 @@
 // src/app/services/auth.service.ts
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { AuthRequest, AuthResponse } from '../model/Auth';
@@ -20,21 +20,13 @@ export class AuthService {
   login(authRequest: AuthRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.BASE_API_URL}/auth/login`, authRequest).pipe(
       tap(response => {
-        console.log('Login response:', response);
         localStorage.setItem('jwt_token', response.token);
         localStorage.setItem('user_role', response.role);
         localStorage.setItem('user_id', response.userId.toString());
-
-        console.log('Login successful, JWT token, role, and user ID stored.');
-        console.log('Rol recibido:', response.role);
-        console.log('ID de usuario recibido:', response.userId);
-
         if (response.role === 'ROLE_ESTUDIANTE') {
-          console.log('Redirigiendo a dashboard-estudiante');
           this.router.navigate(['/dashboard-estudiante']);
 
         } else if (response.role === 'ROLE_PROFESOR') {
-          console.log('Redirigiendo a dashboard-profesor');
           this.router.navigate(['/dashboard-profesor']);
         } else {
           this.router.navigate(['/default-dashboard']);
@@ -74,11 +66,7 @@ export class AuthService {
     );
   }
 
-  getToken(): string | null {
-    const token = localStorage.getItem('jwt_token');
-    console.log('AuthService: getToken() llamado. Token en localStorage:', token ? 'Presente' : 'Ausente'); // Log aquí
-    return token;
-  }
+
 
   isAuthenticated(): boolean {
     return !!this.getToken();
@@ -88,7 +76,6 @@ export class AuthService {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_role');
     localStorage.removeItem('user_id');
-    console.log('Logged out, token and user info removed.');
     this.router.navigate(['/login']);
   }
 
@@ -101,9 +88,21 @@ export class AuthService {
     return userId ? +userId : null;
   }
 
+  // src/app/services/auth.service.ts - Método getUserDetails con headers explícitos
   getUserDetails(userId: number): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.BASE_API_URL}/usuarios/${userId}`).pipe(
-      catchError(this.handleError)
+    const token = this.getToken();
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+
+    return this.http.get<Usuario>(`${this.BASE_API_URL}/usuarios/${userId}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error en getUserDetails:', error);
+        return this.handleError(error);
+      })
     );
   }
 
@@ -126,7 +125,13 @@ export class AuthService {
         errorMessage = `Error del servidor: Código ${error.status}, Mensaje: ${error.message}`;
       }
     }
-    console.error('Error en AuthService:', errorMessage);
     return throwError(() => new Error(errorMessage));
   }
+  // src/app/services/auth.service.ts - Método getToken() mejorado
+  getToken(): string | null {
+    const token = localStorage.getItem('jwt_token');
+    return token;
+  }
+
+
 }

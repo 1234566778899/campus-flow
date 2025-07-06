@@ -1,0 +1,413 @@
+<div class="modal-header">
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <div class="flex items-center gap-4">
+            <div
+                class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                <mat-icon class="text-indigo-600">{{ data.esEdicion ? 'edit' :
+                    'add' }}</mat-icon>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">
+                    {{ data.esEdicion ? 'Editar Evento' : 'Nuevo Evento' }}
+                </h2>
+                <p class="text-gray-600 text-sm mt-1">
+                    {{ data.esEdicion ? 'Modifica la información del evento' :
+                    'Registra un nuevo evento para tus estudiantes' }}
+                </p>
+            </div>
+        </div>
+        <button mat-icon-button (click)="cerrar()"
+            class="text-gray-400 hover:text-gray-600">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+</div>
+
+<div class="modal-content p-6 max-h-96 overflow-y-auto">
+    <mat-stepper [linear]="true" #stepper>
+
+        <!-- Paso 1: Información Básica -->
+        <mat-step [stepControl]="informacionForm" label="Información Básica">
+            <form [formGroup]="informacionForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- Nombre -->
+                    <mat-form-field appearance="outline"
+                        class="col-span-1 md:col-span-2">
+                        <mat-label>Nombre del Evento *</mat-label>
+                        <input matInput
+                            formControlName="nombre"
+                            placeholder="Ej: Examen Parcial de Programación Web">
+                        <mat-error
+                            *ngIf="informacionForm.get('nombre')?.hasError('required')">
+                            El nombre es requerido
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Tipo de Evento -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Tipo de Evento *</mat-label>
+                        <mat-select formControlName="tipo">
+                            <mat-option *ngFor="let tipo of data.tiposEvento"
+                                [value]="tipo.value">
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-sm">{{ tipo.icon
+                                        }}</mat-icon>
+                                    <span>{{ tipo.label }}</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                        <mat-error
+                            *ngIf="informacionForm.get('tipo')?.hasError('required')">
+                            Seleccione el tipo de evento
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Asignatura -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Asignatura *</mat-label>
+                        <mat-select formControlName="asignatura">
+                            <mat-option
+                                *ngFor="let asignatura of data.asignaturas"
+                                [value]="asignatura.id">
+                                {{ asignatura.nombre }} ({{ asignatura.codigo
+                                }})
+                            </mat-option>
+                        </mat-select>
+                        <mat-error
+                            *ngIf="informacionForm.get('asignatura')?.hasError('required')">
+                            Seleccione la asignatura
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Puntaje de Recompensa -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Puntaje de Recompensa</mat-label>
+                        <input matInput
+                            type="number"
+                            formControlName="puntajeRecompensa"
+                            min="0"
+                            max="100">
+                        <mat-error
+                            *ngIf="informacionForm.get('puntajeRecompensa')?.hasError('min')">
+                            El valor mínimo es 0
+                        </mat-error>
+                        <mat-error
+                            *ngIf="informacionForm.get('puntajeRecompensa')?.hasError('max')">
+                            El valor máximo es 100
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <!-- Descripción -->
+                <mat-form-field appearance="outline" class="w-full mb-6">
+                    <mat-label>Descripción *</mat-label>
+                    <textarea matInput
+                        formControlName="descripcion"
+                        rows="3"
+                        placeholder="Describe los detalles del evento, objetivos, requisitos, etc."></textarea>
+                    <mat-error
+                        *ngIf="informacionForm.get('descripcion')?.hasError('required')">
+                        La descripción es requerida
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="flex justify-end">
+                    <button mat-raised-button color="primary" matStepperNext
+                        [disabled]="informacionForm.invalid">
+                        Siguiente
+                        <mat-icon class="ml-2">navigate_next</mat-icon>
+                    </button>
+                </div>
+            </form>
+        </mat-step>
+
+        <!-- Paso 2: Fechas -->
+        <mat-step [stepControl]="fechaHoraForm" label="Fechas">
+            <form [formGroup]="fechaHoraForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- Fecha de Inicio -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Fecha de Inicio *</mat-label>
+                        <input matInput
+                            [matDatepicker]="pickerInicio"
+                            formControlName="fechaInicio"
+                            [min]="fechaMinima">
+                        <mat-datepicker-toggle matSuffix
+                            [for]="pickerInicio"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerInicio></mat-datepicker>
+                        <mat-error
+                            *ngIf="fechaHoraForm.get('fechaInicio')?.hasError('required')">
+                            La fecha de inicio es requerida
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Fecha de Fin -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Fecha de Fin</mat-label>
+                        <input matInput
+                            [matDatepicker]="pickerFin"
+                            formControlName="fechaFin"
+                            [min]="fechaHoraForm.get('fechaInicio')?.value">
+                        <mat-datepicker-toggle matSuffix
+                            [for]="pickerFin"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerFin></mat-datepicker>
+                        <mat-hint>Deja vacío si es el mismo día</mat-hint>
+                    </mat-form-field>
+                </div>
+
+                <div class="flex justify-between">
+                    <button mat-button matStepperPrevious>
+                        <mat-icon class="mr-2">navigate_before</mat-icon>
+                        Anterior
+                    </button>
+                    <button mat-raised-button color="primary" matStepperNext
+                        [disabled]="fechaHoraForm.invalid">
+                        Siguiente
+                        <mat-icon class="ml-2">navigate_next</mat-icon>
+                    </button>
+                </div>
+            </form>
+        </mat-step>
+
+        <!-- Paso 3: Ubicación -->
+        <mat-step [stepControl]="ubicacionForm" label="Ubicación">
+            <form [formGroup]="ubicacionForm">
+                <!-- Modalidad -->
+                <div class="mb-6">
+                    <label
+                        class="block text-sm font-medium text-gray-700 mb-3">Modalidad
+                        del Evento *</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div
+                            class="border border-gray-200 rounded-lg p-4 cursor-pointer transition-all"
+                            [class.border-indigo-500]="ubicacionForm.get('modalidad')?.value === 'presencial'"
+                            [class.bg-indigo-50]="ubicacionForm.get('modalidad')?.value === 'presencial'"
+                            (click)="ubicacionForm.patchValue({modalidad: 'presencial'})">
+                            <div class="flex items-center gap-3">
+                                <mat-icon
+                                    class="text-indigo-600">location_on</mat-icon>
+                                <div>
+                                    <div class="font-medium">Presencial</div>
+                                    <div class="text-sm text-gray-600">En aula
+                                        física</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="border border-gray-200 rounded-lg p-4 cursor-pointer transition-all"
+                            [class.border-indigo-500]="ubicacionForm.get('modalidad')?.value === 'virtual'"
+                            [class.bg-indigo-50]="ubicacionForm.get('modalidad')?.value === 'virtual'"
+                            (click)="ubicacionForm.patchValue({modalidad: 'virtual'})">
+                            <div class="flex items-center gap-3">
+                                <mat-icon
+                                    class="text-indigo-600">videocam</mat-icon>
+                                <div>
+                                    <div class="font-medium">Virtual</div>
+                                    <div class="text-sm text-gray-600">En
+                                        línea</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="border border-gray-200 rounded-lg p-4 cursor-pointer transition-all"
+                            [class.border-indigo-500]="ubicacionForm.get('modalidad')?.value === 'hibrida'"
+                            [class.bg-indigo-50]="ubicacionForm.get('modalidad')?.value === 'hibrida'"
+                            (click)="ubicacionForm.patchValue({modalidad: 'hibrida'})">
+                            <div class="flex items-center gap-3">
+                                <mat-icon
+                                    class="text-indigo-600">hybrid</mat-icon>
+                                <div>
+                                    <div class="font-medium">Híbrida</div>
+                                    <div
+                                        class="text-sm text-gray-600">Presencial
+                                        + Virtual</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ubicación -->
+                <mat-form-field appearance="outline" class="w-full mb-6">
+                    <mat-label>
+                        {{ ubicacionForm.get('modalidad')?.value === 'virtual' ?
+                        'Enlace de reunión' : 'Ubicación' }}
+                        {{ ubicacionForm.get('modalidad')?.value !== 'virtual' ?
+                        '*' : '' }}
+                    </mat-label>
+                    <input matInput
+                        formControlName="ubicacion"
+                        [placeholder]="getPlaceholderUbicacion()">
+                    <mat-icon matSuffix>{{ getIconoUbicacion() }}</mat-icon>
+                    <mat-hint>{{ getHintUbicacion() }}</mat-hint>
+                    <mat-error
+                        *ngIf="ubicacionForm.get('ubicacion')?.hasError('required')">
+                        La ubicación es requerida
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="flex justify-between">
+                    <button mat-button matStepperPrevious>
+                        <mat-icon class="mr-2">navigate_before</mat-icon>
+                        Anterior
+                    </button>
+                    <button mat-raised-button color="primary" matStepperNext
+                        [disabled]="ubicacionForm.invalid">
+                        Siguiente
+                        <mat-icon class="ml-2">navigate_next</mat-icon>
+                    </button>
+                </div>
+            </form>
+        </mat-step>
+
+        <!-- Paso 4: Configuración -->
+        <mat-step [stepControl]="configuracionForm" label="Configuración">
+            <form [formGroup]="configuracionForm">
+                <!-- Estado -->
+                <div
+                    class="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-6">
+                    <div class="flex items-center gap-3">
+                        <mat-icon class="text-gray-600">toggle_on</mat-icon>
+                        <div>
+                            <div class="font-medium">Estado del evento</div>
+                            <div
+                                class="text-sm text-gray-600">Activar/Desactivar
+                                el evento</div>
+                        </div>
+                    </div>
+                    <mat-slide-toggle formControlName="estado"
+                        color="primary"></mat-slide-toggle>
+                </div>
+
+                <div class="flex justify-between">
+                    <button mat-button matStepperPrevious>
+                        <mat-icon class="mr-2">navigate_before</mat-icon>
+                        Anterior
+                    </button>
+                    <button mat-raised-button color="primary" matStepperNext>
+                        Revisar
+                        <mat-icon class="ml-2">navigate_next</mat-icon>
+                    </button>
+                </div>
+            </form>
+        </mat-step>
+
+        <!-- Paso 5: Resumen -->
+        <mat-step label="Resumen">
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">Resumen del
+                    Evento</h4>
+
+                <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <!-- Información básica -->
+                    <div class="border-b border-gray-200 pb-4">
+                        <h5 class="font-medium text-gray-900 mb-2">Información
+                            Básica</h5>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Nombre:</span>
+                                <div class="font-medium">{{
+                                    informacionForm.get('nombre')?.value
+                                    }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Tipo:</span>
+                                <div class="font-medium">{{
+                                    getTipoLabel(informacionForm.get('tipo')?.value)
+                                    }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Asignatura:</span>
+                                <div class="font-medium">{{
+                                    getAsignaturaLabel(informacionForm.get('asignatura')?.value)
+                                    }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Puntaje:</span>
+                                <div class="font-medium">{{
+                                    informacionForm.get('puntajeRecompensa')?.value
+                                    || '0' }} puntos</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fechas -->
+                    <div class="border-b border-gray-200 pb-4">
+                        <h5 class="font-medium text-gray-900 mb-2">Fechas</h5>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Fecha inicio:</span>
+                                <div class="font-medium">{{
+                                    formatearFecha(fechaHoraForm.get('fechaInicio')?.value)
+                                    }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Fecha fin:</span>
+                                <div class="font-medium">{{
+                                    formatearFecha(fechaHoraForm.get('fechaFin')?.value)
+                                    || 'Mismo día' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="border-b border-gray-200 pb-4">
+                        <h5
+                            class="font-medium text-gray-900 mb-2">Ubicación</h5>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Modalidad:</span>
+                                <div class="font-medium capitalize">{{
+                                    ubicacionForm.get('modalidad')?.value
+                                    }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Ubicación:</span>
+                                <div class="font-medium">{{
+                                    ubicacionForm.get('ubicacion')?.value ||
+                                    'No especificada' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración -->
+                    <div>
+                        <h5
+                            class="font-medium text-gray-900 mb-2">Configuración</h5>
+                        <div class="flex flex-wrap gap-2">
+                            <mat-chip
+                                *ngIf="configuracionForm.get('estado')?.value"
+                                color="primary" size="small">
+                                Evento activo
+                            </mat-chip>
+                            <mat-chip
+                                *ngIf="!configuracionForm.get('estado')?.value"
+                                color="warn" size="small">
+                                Evento inactivo
+                            </mat-chip>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button mat-button matStepperPrevious>
+                    <mat-icon class="mr-2">navigate_before</mat-icon>
+                    Anterior
+                </button>
+                <button mat-raised-button
+                    color="primary"
+                    (click)="onSubmit()"
+                    [disabled]="isLoading">
+                    <mat-icon *ngIf="isLoading"
+                        class="animate-spin mr-2">refresh</mat-icon>
+                    <mat-icon *ngIf="!isLoading" class="mr-2">save</mat-icon>
+                    {{ isLoading ? 'Guardando...' : (data.esEdicion ?
+                    'Actualizar Evento' : 'Crear Evento') }}
+                </button>
+            </div>
+        </mat-step>
+    </mat-stepper>
+</div>

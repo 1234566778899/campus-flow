@@ -1,0 +1,431 @@
+<!-- src/app/components/profesor/profesor-notas/profesor-notas.component.html -->
+<div class="notas-container p-6 max-w-7xl mx-auto">
+
+    <!-- Header Section -->
+    <div class="header-section mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1
+                    class="flex items-center gap-3 text-3xl font-bold text-gray-900">
+                    <mat-icon class="text-purple-600">grade</mat-icon>
+                    Gestión de Notas
+                </h1>
+                <p class="text-gray-600 mt-2 ml-12">
+                    Registra y administra las calificaciones de tus estudiantes
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button mat-raised-button
+                    color="primary"
+                    class="flex items-center gap-2"
+                    [disabled]="!asignaturaSeleccionada"
+                    (click)="exportarNotas()">
+                    <mat-icon>download</mat-icon>
+                    Exportar Notas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selector de Asignatura -->
+    <mat-card class="selector-card mb-6">
+        <mat-card-content class="p-6">
+            <form [formGroup]="filtroForm">
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                    <!-- Selección de Asignatura -->
+                    <mat-form-field appearance="outline"
+                        class="col-span-1 lg:col-span-2">
+                        <mat-label>Seleccionar Asignatura</mat-label>
+                        <mat-select formControlName="asignatura" required>
+                            <mat-option *ngFor="let asignatura of asignaturas"
+                                [value]="asignatura.id">
+                                <div
+                                    class="flex items-center justify-between w-full">
+                                    <span>{{ asignatura.nombre }} ({{
+                                        asignatura.codigo }})</span>
+                                    <span class="text-sm text-gray-500">{{
+                                        asignatura.estudiantesMatriculados }}
+                                        estudiantes</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                        <mat-icon matSuffix>school</mat-icon>
+                    </mat-form-field>
+
+                    <!-- Búsqueda -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Buscar estudiante</mat-label>
+                        <input matInput
+                            formControlName="search"
+                            placeholder="Nombre o email..."
+                            (keyup)="applyFilter()">
+                        <mat-icon matSuffix>search</mat-icon>
+                    </mat-form-field>
+
+                    <!-- Filtro por Estado -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Estado</mat-label>
+                        <mat-select formControlName="estado"
+                            (selectionChange)="applyFilter()">
+                            <mat-option value>Todos</mat-option>
+                            <mat-option value="aprobado">Aprobado</mat-option>
+                            <mat-option
+                                value="desaprobado">Desaprobado</mat-option>
+                            <mat-option value="en_progreso">En
+                                Progreso</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                </div>
+
+                <!-- Información de la asignatura seleccionada -->
+                <div *ngIf="asignaturaSeleccionada"
+                    class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-900">{{
+                                asignaturaSeleccionada.nombre }}</h3>
+                            <p class="text-blue-700 text-sm">
+                                Código: {{ asignaturaSeleccionada.codigo }} |
+                                Ciclo: {{ asignaturaSeleccionada.ciclo }} |
+                                Créditos: {{ asignaturaSeleccionada.creditos }}
+                            </p>
+                        </div>
+                        <button mat-button
+                            type="button"
+                            (click)="clearFilters()"
+                            class="text-blue-600">
+                            <mat-icon>clear</mat-icon>
+                            Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Estadísticas (solo si hay asignatura seleccionada) -->
+    <div *ngIf="asignaturaSeleccionada"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-600 text-sm font-medium">Total
+                            Estudiantes</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.totalEstudiantes }}</p>
+                    </div>
+                    <mat-icon class="text-blue-500 text-3xl">people</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-green-600 text-sm font-medium">Aprobados</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.aprobados }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-green-500 text-3xl">check_circle</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-red-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-red-600 text-sm font-medium">Desaprobados</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.desaprobados }}</p>
+                    </div>
+                    <mat-icon class="text-red-500 text-3xl">cancel</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-600 text-sm font-medium">Promedio
+                            General</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.promedioGeneral.toFixed(1) }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-purple-500 text-3xl">trending_up</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-orange-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-orange-600 text-sm font-medium">Evaluaciones
+                            Pendientes</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.evaluacionesPendientes }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-orange-500 text-3xl">pending</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+
+    <!-- Tabla de Notas -->
+    <mat-card *ngIf="asignaturaSeleccionada" class="table-card">
+        <mat-card-content class="p-0">
+
+            <!-- Table Header -->
+            <div class="table-header p-6 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Registro de Calificaciones
+                        <mat-chip class="ml-3" color="primary">
+                            {{ dataSource.filteredData.length }} estudiantes
+                        </mat-chip>
+                    </h3>
+
+                    <div class="flex gap-2">
+                        <button mat-icon-button matTooltip="Actualizar datos">
+                            <mat-icon>refresh</mat-icon>
+                        </button>
+                        <button mat-icon-button
+                            matTooltip="Configurar evaluaciones">
+                            <mat-icon>settings</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container overflow-x-auto">
+                <table mat-table [dataSource]="dataSource" matSort
+                    class="w-full">
+
+                    <!-- Estudiante Column -->
+                    <ng-container matColumnDef="estudiante">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="estudiante.nombres" class="w-72">
+                            Estudiante
+                        </th>
+                        <td mat-cell *matCellDef="let nota" class="py-4">
+                            <div class="flex items-center gap-3">
+                                <img
+                                    [src]="nota.estudiante.avatar || getDefaultAvatar(nota.estudiante.nombres)"
+                                    [alt]="nota.estudiante.nombres"
+                                    class="w-10 h-10 rounded-full border-2 border-gray-200">
+                                <div>
+                                    <div class="font-medium text-gray-900">
+                                        {{ nota.estudiante.nombres }} {{
+                                        nota.estudiante.apellidos }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{
+                                        nota.estudiante.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Evaluaciones Column -->
+                    <ng-container matColumnDef="evaluaciones">
+                        <th mat-header-cell *matHeaderCellDef class="w-96">
+                            Evaluaciones
+                        </th>
+                        <td mat-cell *matCellDef="let nota">
+                            <div class="flex flex-wrap gap-2">
+                                <div
+                                    *ngFor="let evaluacion of nota.evaluaciones"
+                                    class="evaluation-chip"
+                                    [class.pending]="evaluacion.estado === 'pendiente'"
+                                    [class.completed]="evaluacion.estado === 'registrada'"
+                                    [matTooltip]="evaluacion.nombre + ' (' + evaluacion.peso + '%)'">
+
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon
+                                            [class]="getNotaColor(evaluacion.nota)"
+                                            class="text-sm">
+                                            {{
+                                            getTipoEvaluacionIcon(evaluacion.tipo)
+                                            }}
+                                        </mat-icon>
+
+                                        <span class="font-medium text-xs">
+                                            {{ evaluacion.nombre.substring(0, 8)
+                                            }}{{ evaluacion.nombre.length > 8 ?
+                                            '...' : '' }}
+                                        </span>
+
+                                        <span *ngIf="evaluacion.nota !== null"
+                                            [class]="getNotaColor(evaluacion.nota)"
+                                            class="font-bold text-sm">
+                                            {{ evaluacion.nota.toFixed(1) }}
+                                        </span>
+
+                                        <span *ngIf="evaluacion.nota === null"
+                                            class="text-gray-400 text-xs">
+                                            Pendiente
+                                        </span>
+                                    </div>
+
+                                    <!-- Botones de acción para cada evaluación -->
+                                    <div class="flex gap-1 mt-1">
+                                        <button *ngIf="evaluacion.nota === null"
+                                            mat-icon-button
+                                            size="small"
+                                            class="text-xs h-6 w-6"
+                                            matTooltip="Registrar nota"
+                                            (click)="registrarNota(nota, evaluacion)">
+                                            <mat-icon
+                                                class="text-sm">add</mat-icon>
+                                        </button>
+
+                                        <button *ngIf="evaluacion.nota !== null"
+                                            mat-icon-button
+                                            size="small"
+                                            class="text-xs h-6 w-6"
+                                            matTooltip="Editar nota"
+                                            (click)="editarNota(nota, evaluacion)">
+                                            <mat-icon
+                                                class="text-sm">edit</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Promedio Column -->
+                    <ng-container matColumnDef="promedio">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="promedioFinal" class="w-32">
+                            Promedio Final
+                        </th>
+                        <td mat-cell *matCellDef="let nota">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    [class]="getPromedioClass(nota.promedioFinal)"
+                                    class="px-3 py-1 rounded-full text-sm font-bold">
+                                    {{ nota.promedioFinal.toFixed(1) }}
+                                </span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Estado Column -->
+                    <ng-container matColumnDef="estado">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="estado" class="w-32">
+                            Estado
+                        </th>
+                        <td mat-cell *matCellDef="let nota">
+                            <mat-chip [color]="getEstadoColor(nota.estado)"
+                                selected size="small">
+                                {{ getEstadoLabel(nota.estado) }}
+                            </mat-chip>
+                        </td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef
+                            class="w-32">Acciones</th>
+                        <td mat-cell *matCellDef="let nota">
+                            <button mat-icon-button
+                                [matMenuTriggerFor]="actionMenu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+
+                            <mat-menu #actionMenu="matMenu">
+                                <button mat-menu-item
+                                    (click)="registrarNota(nota)">
+                                    <mat-icon>add</mat-icon>
+                                    <span>Nueva Evaluación</span>
+                                </button>
+                                <button mat-menu-item
+                                    (click)="verDetalleEstudiante(nota.estudiante)">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span>Ver Detalle</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item>
+                                    <mat-icon>history</mat-icon>
+                                    <span>Historial de Notas</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>message</mat-icon>
+                                    <span>Enviar Mensaje</span>
+                                </button>
+                            </mat-menu>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row
+                        *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                        class="hover:bg-gray-50 transition-colors duration-200"></tr>
+                </table>
+            </div>
+
+            <!-- Paginator -->
+            <mat-paginator [pageSizeOptions]="[10, 25, 50]"
+                [pageSize]="25"
+                showFirstLastButtons
+                class="border-t border-gray-200">
+            </mat-paginator>
+
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Estado sin asignatura seleccionada -->
+    <div *ngIf="!asignaturaSeleccionada" class="text-center py-16">
+        <mat-card class="max-w-md mx-auto">
+            <mat-card-content class="p-8">
+                <mat-icon class="text-6xl text-gray-400 mb-4">school</mat-icon>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Selecciona
+                    una Asignatura</h3>
+                <p class="text-gray-500 mb-6">
+                    Elige una asignatura del menú desplegable para comenzar a
+                    gestionar las notas de tus estudiantes.
+                </p>
+                <div
+                    class="flex items-center justify-center gap-4 text-sm text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="text-sm">info</mat-icon>
+                        <span>Registra calificaciones</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="text-sm">analytics</mat-icon>
+                        <span>Ve estadísticas</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <mat-icon class="text-sm">download</mat-icon>
+                        <span>Exporta reportes</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+</div>

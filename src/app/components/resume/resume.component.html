@@ -2,7 +2,7 @@
     <div class="left-panel">
         <mat-card class="section-card greeting-card">
             <mat-card-content>
-                <h2>Buen día, Estudiante</h2>
+                <h2 class="font-bold">Buen día, Estudiante</h2>
                 <p>Rastrea progreso académico con las notas de tus
                     asignaciones.</p>
                 <button mat-flat-button color="primary"
@@ -19,14 +19,14 @@
                     <span class="text-lg font-semibold text-gray-900">Tus
                         tareas</span> <br>
                     <span class="text-sm font-normal text-gray-500">{{
-                        tareasActivas.length }} activas</span>
+                        tareas.length }} activas</span>
                 </mat-card-title>
             </mat-card-header>
 
             <mat-card-content class="pt-4">
 
                 <!-- Mensaje cuando no hay tareas -->
-                <div *ngIf="tareasActivas.length === 0"
+                <div *ngIf="tareas.length === 0"
                     class="text-center py-12">
                     <div
                         class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -40,10 +40,10 @@
                 </div>
 
                 <!-- Lista de tareas -->
-                <div *ngIf="tareasActivas.length > 0" class="space-y-4">
+                <div *ngIf="tareas.length > 0" class="space-y-4">
 
                     <div
-                        *ngFor="let tarea of tareasActivas"
+                        *ngFor="let tarea of tareas"
                         class="assignment-item flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group">
 
                         <!-- Icono de prioridad -->
@@ -64,8 +64,8 @@
                                     <h4
                                         class="font-semibold text-gray-900 mb-1">{{
                                         tarea.titulo }}</h4>
-                                    <p class="text-sm text-gray-600 mb-2">{{
-                                        tarea.asignatura }}</p>
+                                    <!-- <p class="text-sm text-gray-600 mb-2">{{
+                                        tarea.asignatura }}</p> -->
 
                                     <!-- Badge de prioridad -->
                                     <span
@@ -127,7 +127,7 @@
                 </div>
 
                 <!-- Resumen rápido si hay muchas tareas -->
-                <div *ngIf="tareasActivas.length >= 3"
+                <div *ngIf="tareas.length >= 3"
                     class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div class="flex items-center gap-3">
                         <mat-icon class="text-blue-600">info</mat-icon>

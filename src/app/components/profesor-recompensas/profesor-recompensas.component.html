@@ -1,0 +1,714 @@
+<!-- src/app/components/profesor/profesor-recompensas/profesor-recompensas.component.html -->
+<div class="recompensas-container p-6 max-w-7xl mx-auto">
+
+    <!-- Header Section -->
+    <div class="header-section mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1
+                    class="flex items-center gap-3 text-3xl font-bold text-gray-900">
+                    <mat-icon class="text-yellow-600">emoji_events</mat-icon>
+                    Gestión de Recompensas
+                </h1>
+                <p class="text-gray-600 mt-2 ml-12">
+                    Crea y gestiona recompensas para motivar a tus estudiantes
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button mat-raised-button
+                    color="primary"
+                    class="flex items-center gap-2"
+                    (click)="nuevaRecompensa()">
+                    <mat-icon>add</mat-icon>
+                    Nueva Recompensa
+                </button>
+                <button mat-stroked-button
+                    color="accent"
+                    class="flex items-center gap-2"
+                    (click)="asignarRecompensa()">
+                    <mat-icon>card_giftcard</mat-icon>
+                    Asignar Recompensa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-yellow-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-600 text-sm font-medium">Total
+                            Recompensas</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.totalRecompensas }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-yellow-500 text-3xl">emoji_events</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-green-600 text-sm font-medium">Recompensas
+                            Activas</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.recompensasActivas }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-green-500 text-3xl">verified</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-600 text-sm font-medium">Total
+                            Asignaciones</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.totalAsignaciones }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-purple-500 text-3xl">assignment_turned_in</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-600 text-sm font-medium">Estudiantes
+                            Recompensados</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.estudiantesRecompensados }}</p>
+                    </div>
+                    <mat-icon class="text-blue-500 text-3xl">people</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+
+    <!-- Tabs para Recompensas y Asignaciones -->
+    <mat-card class="tabs-card">
+        <mat-tab-group animationDuration="300ms" class="custom-tabs">
+
+            <!-- Tab 1: Recompensas -->
+            <mat-tab label="Recompensas Creadas">
+                <div class="tab-content p-6">
+
+                    <!-- Filtros para Recompensas -->
+                    <div class="filter-section mb-6">
+                        <form [formGroup]="filtroRecompensasForm">
+                            <div
+                                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+
+                                <!-- Búsqueda -->
+                                <mat-form-field appearance="outline"
+                                    class="col-span-1 lg:col-span-2">
+                                    <mat-label>Buscar recompensas</mat-label>
+                                    <input matInput
+                                        formControlName="search"
+                                        placeholder="Nombre o descripción...">
+                                    <mat-icon matSuffix>search</mat-icon>
+                                </mat-form-field>
+
+                                <!-- Asignatura -->
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Asignatura</mat-label>
+                                    <mat-select formControlName="asignatura">
+                                        <mat-option value>Todas</mat-option>
+                                        <mat-option
+                                            *ngFor="let asignatura of asignaturas"
+                                            [value]="asignatura.id">
+                                            {{ asignatura.nombre }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <!-- Tipo -->
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Tipo</mat-label>
+                                    <mat-select formControlName="tipo">
+                                        <mat-option value>Todos</mat-option>
+                                        <mat-option
+                                            *ngFor="let tipo of tiposRecompensa"
+                                            [value]="tipo.value">
+                                            <div
+                                                class="flex items-center gap-2">
+                                                <mat-icon class="text-sm"
+                                                    [style.color]="tipo.color">{{
+                                                    tipo.icon }}</mat-icon>
+                                                <span>{{ tipo.label }}</span>
+                                            </div>
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <!-- Estado -->
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Estado</mat-label>
+                                    <mat-select formControlName="estado">
+                                        <mat-option value>Todos</mat-option>
+                                        <mat-option
+                                            *ngFor="let estado of estadosRecompensa"
+                                            [value]="estado.value">
+                                            {{ estado.label }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                            </div>
+
+                            <div class="flex justify-end mt-4">
+                                <button mat-button
+                                    type="button"
+                                    (click)="clearRecompensasFilters()">
+                                    <mat-icon>clear</mat-icon>
+                                    Limpiar Filtros
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tabla de Recompensas -->
+                    <div class="table-container overflow-x-auto">
+                        <table mat-table [dataSource]="recompensasDataSource"
+                            matSort class="w-full">
+
+                            <!-- Recompensa Column -->
+                            <ng-container matColumnDef="recompensa">
+                                <th mat-header-cell *matHeaderCellDef
+                                    mat-sort-header="nombre"
+                                    class="w-80">
+                                    Recompensa
+                                </th>
+                                <td mat-cell *matCellDef="let recompensa "
+                                    class="py-4">
+                                    <div class="flex items-start gap-3 my-2">
+                                        <div
+                                            class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 "
+                                            [style.background-color]="getTipoInfo(recompensa.tipo).color + '20'"
+                                            [style.border]="'2px solid ' + getTipoInfo(recompensa.tipo).color">
+                                            <mat-icon
+                                                [style.color]="getTipoInfo(recompensa.tipo).color">
+                                                {{ recompensa.icono ||
+                                                getTipoInfo(recompensa.tipo).icon
+                                                }}
+                                            </mat-icon>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4
+                                                class="font-semibold text-gray-900 mb-1">{{
+                                                recompensa.nombre }}</h4>
+                                            <p
+                                                class="text-sm text-gray-600 mb-2 line-clamp-2">{{
+                                                recompensa.descripcion }}</p>
+                                            <div
+                                                class="flex items-center gap-3 text-xs">
+                                                <mat-chip size="small"
+                                                    [style.background-color]="getTipoInfo(recompensa.tipo).color + '20'">
+                                                    <mat-icon
+                                                        class="text-xs mr-1"
+                                                        [style.color]="getTipoInfo(recompensa.tipo).color">
+                                                        {{
+                                                        getCategoriaInfo(recompensa.categoria).icon
+                                                        }}
+                                                    </mat-icon>
+                                                    {{
+                                                    getCategoriaInfo(recompensa.categoria).label
+                                                    }}
+                                                </mat-chip>
+                                                <span
+                                                    class="flex items-center gap-1 text-gray-500">
+                                                    <mat-icon
+                                                        class="text-xs">stars</mat-icon>
+                                                    {{ recompensa.valor }} pts
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Tipo Column -->
+                            <ng-container matColumnDef="tipo">
+                                <th mat-header-cell *matHeaderCellDef
+                                    mat-sort-header="tipo" class="w-32">
+                                    Tipo
+                                </th>
+                                <td mat-cell *matCellDef="let recompensa">
+                                    <div class="flex items-center gap-2">
+                                        <mat-icon class="text-sm"
+                                            [style.color]="getTipoInfo(recompensa.tipo).color">
+                                            {{ getTipoInfo(recompensa.tipo).icon
+                                            }}
+                                        </mat-icon>
+                                        <span class="text-sm">{{
+                                            getTipoInfo(recompensa.tipo).label
+                                            }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Criterios Column -->
+                            <ng-container matColumnDef="criterios">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-64">
+                                    Criterios
+                                </th>
+                                <td mat-cell *matCellDef="let recompensa">
+                                    <div class="space-y-1">
+                                        <div
+                                            *ngFor="let criterio of recompensa.criterios.slice(0, 2)"
+                                            class="text-xs text-gray-600 flex items-center gap-1">
+                                            <mat-icon class="text-xs"
+                                                [class.text-red-500]="criterio.obligatorio">
+                                                {{ criterio.obligatorio ?
+                                                'priority_high' : 'info' }}
+                                            </mat-icon>
+                                            <span>{{ criterio.descripcion
+                                                }}</span>
+                                        </div>
+                                        <div
+                                            *ngIf="recompensa.criterios.length > 2"
+                                            class="text-xs text-blue-600 cursor-pointer"
+                                            matTooltip="{{ getCriteriosTexto(recompensa.criterios.slice(2)) }}">
+                                            +{{ recompensa.criterios.length - 2
+                                            }} más...
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Evento Column -->
+                            <ng-container matColumnDef="evento">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-48">
+                                    Evento/Asignatura
+                                </th>
+                                <td mat-cell *matCellDef="let recompensa">
+                                    <div>
+                                        <div
+                                            class="font-medium text-gray-900 text-sm">{{
+                                            recompensa.asignatura.nombre
+                                            }}</div>
+                                        <div class="text-xs text-gray-500">{{
+                                            recompensa.asignatura.codigo
+                                            }}</div>
+                                        <div *ngIf="recompensa.eventoAsociado"
+                                            class="text-xs text-blue-600 mt-1">
+                                            <mat-icon
+                                                class="text-xs">event</mat-icon>
+                                            {{ recompensa.eventoAsociado.nombre
+                                            }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Estadísticas Column -->
+                            <ng-container matColumnDef="estadisticas">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-32">
+                                    Uso
+                                </th>
+                                <td mat-cell *matCellDef="let recompensa">
+                                    <div class="text-center">
+                                        <div
+                                            class="text-lg font-bold text-gray-900">{{
+                                            recompensa.cantidadUsada }}</div>
+                                        <div class="text-xs text-gray-500"
+                                            *ngIf="recompensa.cantidadDisponible">
+                                            de {{ recompensa.cantidadDisponible
+                                            }}
+                                        </div>
+                                        <div
+                                            class="w-full bg-gray-200 rounded-full h-1 mt-2"
+                                            *ngIf="recompensa.cantidadDisponible">
+                                            <div
+                                                class="bg-yellow-500 h-1 rounded-full"
+                                                [style.width.%]="getProgresoCriterios(recompensa)"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Estado Column -->
+                            <ng-container matColumnDef="estado">
+                                <th mat-header-cell *matHeaderCellDef
+                                    mat-sort-header="estado" class="w-32">
+                                    Estado
+                                </th>
+                                <td mat-cell *matCellDef="let recompensa">
+                                    <mat-chip
+                                        [color]="getEstadoColor(recompensa.estado)"
+                                        selected size="small">
+                                        {{ getEstadoLabel(recompensa.estado) }}
+                                    </mat-chip>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="acciones">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-32">Acciones</th>
+                                <td mat-cell *matCellDef="let recompensa">
+                                    <button mat-icon-button
+                                        [matMenuTriggerFor]="recompensaMenu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+
+                                    <mat-menu #recompensaMenu="matMenu">
+                                        <button mat-menu-item
+                                            (click)="asignarRecompensa(recompensa)">
+                                            <mat-icon>card_giftcard</mat-icon>
+                                            <span>Asignar a Estudiante</span>
+                                        </button>
+                                        <button mat-menu-item
+                                            (click)="editarRecompensa(recompensa)">
+                                            <mat-icon>edit</mat-icon>
+                                            <span>Editar</span>
+                                        </button>
+                                        <button mat-menu-item
+                                            (click)="duplicarRecompensa(recompensa)">
+                                            <mat-icon>content_copy</mat-icon>
+                                            <span>Duplicar</span>
+                                        </button>
+                                        <button mat-menu-item
+                                            (click)="verEstadisticasRecompensa(recompensa)">
+                                            <mat-icon>analytics</mat-icon>
+                                            <span>Ver Estadísticas</span>
+                                        </button>
+
+                                        <mat-divider></mat-divider>
+
+                                        <!-- Opciones de estado -->
+                                        <ng-container
+                                            *ngIf="recompensa.estado === 'activa'">
+                                            <button mat-menu-item
+                                                (click)="cambiarEstadoRecompensa(recompensa, 'inactiva')">
+                                                <mat-icon
+                                                    class="text-orange-600">pause</mat-icon>
+                                                <span>Desactivar</span>
+                                            </button>
+                                        </ng-container>
+
+                                        <ng-container
+                                            *ngIf="recompensa.estado === 'inactiva'">
+                                            <button mat-menu-item
+                                                (click)="cambiarEstadoRecompensa(recompensa, 'activa')">
+                                                <mat-icon
+                                                    class="text-green-600">play_arrow</mat-icon>
+                                                <span>Activar</span>
+                                            </button>
+                                        </ng-container>
+
+                                        <!-- Eliminar -->
+                                        <mat-divider></mat-divider>
+                                        <button mat-menu-item
+                                            (click)="eliminarRecompensa(recompensa)"
+                                            class="text-red-600">
+                                            <mat-icon
+                                                class="text-red-600">delete</mat-icon>
+                                            <span>Eliminar</span>
+                                        </button>
+                                    </mat-menu>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row
+                                *matHeaderRowDef="recompensasColumns; sticky: true"></tr>
+                            <tr mat-row
+                                *matRowDef="let row; columns: recompensasColumns;"
+                                class="hover:bg-gray-50 transition-colors duration-200"></tr>
+                        </table>
+                    </div>
+
+                    <!-- Paginator para Recompensas -->
+                    <mat-paginator [pageSizeOptions]="[10, 25, 50]"
+                        [pageSize]="25"
+                        showFirstLastButtons
+                        class="border-t border-gray-200 mt-4">
+                    </mat-paginator>
+
+                </div>
+            </mat-tab>
+
+            <!-- Tab 2: Asignaciones -->
+            <mat-tab label="Recompensas Asignadas">
+                <div class="tab-content p-6">
+
+                    <!-- Filtros para Asignaciones -->
+                    <div class="filter-section mb-6">
+                        <form [formGroup]="filtroAsignacionesForm">
+                            <div
+                                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                                <!-- Búsqueda Estudiante -->
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Buscar estudiante</mat-label>
+                                    <input matInput
+                                        formControlName="searchEstudiante"
+                                        placeholder="Nombre o email...">
+                                    <mat-icon matSuffix>search</mat-icon>
+                                </mat-form-field>
+
+                                <!-- Recompensa -->
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Recompensa</mat-label>
+                                    <mat-select formControlName="recompensa">
+                                        <mat-option value>Todas</mat-option>
+                                        <mat-option
+                                            *ngFor="let recompensa of recompensas"
+                                            [value]="recompensa.id">
+                                            {{ recompensa.nombre }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <!-- Evento -->
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Evento</mat-label>
+                                    <mat-select formControlName="evento">
+                                        <mat-option value>Todos</mat-option>
+                                        <mat-option
+                                            *ngFor="let evento of eventos"
+                                            [value]="evento.id">
+                                            {{ evento.nombre }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <!-- Botón limpiar -->
+                                <div class="flex items-end">
+                                    <button mat-button
+                                        type="button"
+                                        (click)="clearAsignacionesFilters()"
+                                        class="h-14 w-full">
+                                        <mat-icon>clear</mat-icon>
+                                        Limpiar
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tabla de Asignaciones -->
+                    <div class="table-container overflow-x-auto">
+                        <table mat-table [dataSource]="asignacionesDataSource"
+                            matSort class="w-full">
+
+                            <!-- Estudiante Column -->
+                            <ng-container matColumnDef="estudiante">
+                                <th mat-header-cell *matHeaderCellDef
+                                    mat-sort-header="estudiante.nombres"
+                                    class="w-80">
+                                    Estudiante
+                                </th>
+                                <td mat-cell *matCellDef="let asignacion"
+                                    class="py-4">
+                                    <div class="flex items-center gap-3">
+                                        <img
+                                            [src]="asignacion.estudiante.avatar || getDefaultAvatar(asignacion.estudiante.nombres)"
+                                            [alt]="asignacion.estudiante.nombres"
+                                            class="w-10 h-10 rounded-full border-2 border-gray-200">
+                                        <div>
+                                            <div
+                                                class="font-medium text-gray-900">
+                                                {{ asignacion.estudiante.nombres
+                                                }} {{
+                                                asignacion.estudiante.apellidos
+                                                }}
+                                            </div>
+                                            <div
+                                                class="text-sm text-gray-500">{{
+                                                asignacion.estudiante.email
+                                                }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Recompensa Column -->
+                            <ng-container matColumnDef="recompensa">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-64">
+                                    Recompensa
+                                </th>
+                                <td mat-cell *matCellDef="let asignacion">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full flex items-center justify-center"
+                                            [style.background-color]="getTipoInfo(asignacion.recompensa.tipo).color + '20'"
+                                            [style.border]="'1px solid ' + getTipoInfo(asignacion.recompensa.tipo).color">
+                                            <mat-icon class="text-sm"
+                                                [style.color]="getTipoInfo(asignacion.recompensa.tipo).color">
+                                                {{ asignacion.recompensa.icono
+                                                ||
+                                                getTipoInfo(asignacion.recompensa.tipo).icon
+                                                }}
+                                            </mat-icon>
+                                        </div>
+                                        <div>
+                                            <div
+                                                class="font-medium text-gray-900 text-sm">{{
+                                                asignacion.recompensa.nombre
+                                                }}</div>
+                                            <div
+                                                class="text-xs text-gray-500">{{
+                                                asignacion.recompensa.valor }}
+                                                puntos</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Evento Column -->
+                            <ng-container matColumnDef="evento">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-48">
+                                    Evento
+                                </th>
+                                <td mat-cell *matCellDef="let asignacion">
+                                    <div
+                                        *ngIf="asignacion.evento; else sinEvento">
+                                        <div
+                                            class="font-medium text-gray-900 text-sm">{{
+                                            asignacion.evento.nombre }}</div>
+                                        <div
+                                            class="text-xs text-gray-500">Evento
+                                            específico</div>
+                                    </div>
+                                    <ng-template #sinEvento>
+                                        <div
+                                            class="text-sm text-gray-500 italic">Recompensa
+                                            general</div>
+                                    </ng-template>
+                                </td>
+                            </ng-container>
+
+                            <!-- Fecha Column -->
+                            <ng-container matColumnDef="fecha">
+                                <th mat-header-cell *matHeaderCellDef
+                                    mat-sort-header="fechaOtorgada"
+                                    class="w-32">
+                                    Fecha
+                                </th>
+                                <td mat-cell *matCellDef="let asignacion">
+                                    <div class="text-sm">
+                                        <div class="font-medium text-gray-900">
+                                            {{
+                                            formatearFecha(asignacion.fechaOtorgada)
+                                            }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ asignacion.fechaOtorgada |
+                                            date:'HH:mm' }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <!-- Estado Column -->
+                            <ng-container matColumnDef="estado">
+                                <th mat-header-cell *matHeaderCellDef
+                                    mat-sort-header="estado" class="w-32">
+                                    Estado
+                                </th>
+                                <td mat-cell *matCellDef="let asignacion">
+                                    <mat-chip
+                                        [color]="asignacion.estado === 'otorgada' ? 'primary' : asignacion.estado === 'canjeada' ? 'accent' : 'warn'"
+                                        selected size="small">
+                                        {{ asignacion.estado === 'otorgada' ?
+                                        'Otorgada' : asignacion.estado ===
+                                        'canjeada' ? 'Canjeada' : 'Expirada' }}
+                                    </mat-chip>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="acciones">
+                                <th mat-header-cell *matHeaderCellDef
+                                    class="w-32">Acciones</th>
+                                <td mat-cell *matCellDef="let asignacion">
+                                    <button mat-icon-button
+                                        [matMenuTriggerFor]="asignacionMenu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+
+                                    <mat-menu #asignacionMenu="matMenu">
+                                        <button mat-menu-item>
+                                            <mat-icon>visibility</mat-icon>
+                                            <span>Ver Detalle</span>
+                                        </button>
+                                        <button mat-menu-item
+                                            *ngIf="asignacion.estado === 'otorgada'"
+                                            (click)="revocarRecompensa(asignacion)">
+                                            <mat-icon
+                                                class="text-red-600">cancel</mat-icon>
+                                            <span>Revocar Recompensa</span>
+                                        </button>
+                                    </mat-menu>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row
+                                *matHeaderRowDef="asignacionesColumns; sticky: true"></tr>
+                            <tr mat-row
+                                *matRowDef="let row; columns: asignacionesColumns;"
+                                class="hover:bg-gray-50 transition-colors duration-200"></tr>
+                        </table>
+                    </div>
+
+                    <!-- Paginator para Asignaciones -->
+                    <mat-paginator [pageSizeOptions]="[10, 25, 50]"
+                        [pageSize]="25"
+                        showFirstLastButtons
+                        class="border-t border-gray-200 mt-4">
+                    </mat-paginator>
+
+                </div>
+            </mat-tab>
+
+        </mat-tab-group>
+    </mat-card>
+
+    <!-- Estado vacío -->
+    <div
+        *ngIf="recompensasDataSource.filteredData.length === 0 && asignacionesDataSource.filteredData.length === 0"
+        class="text-center py-16">
+        <mat-card class="max-w-md mx-auto">
+            <mat-card-content class="p-8">
+                <mat-icon
+                    class="text-6xl text-gray-400 mb-4">emoji_events</mat-icon>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay
+                    recompensas</h3>
+                <p class="text-gray-500 mb-6">
+                    Comienza creando recompensas para motivar a tus estudiantes.
+                </p>
+                <button mat-raised-button color="primary"
+                    (click)="nuevaRecompensa()">
+                    <mat-icon class="mr-2">add</mat-icon>
+                    Crear Primera Recompensa
+                </button>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+</div>

@@ -135,9 +135,6 @@ export class RecompensaListarComponent implements OnInit {
       verticalPosition: 'top',
       panelClass: ['success-snackbar']
     });
-
-    // Aquí harías la actualización en el backend
-    console.log('Recompensa canjeada:', recompensa);
   }
 
   eliminarRecompensa(idRecompensa: number) {
@@ -150,8 +147,6 @@ export class RecompensaListarComponent implements OnInit {
       verticalPosition: 'top'
     });
 
-    // Aquí harías la eliminación en el backend
-    console.log('Recompensa eliminada:', idRecompensa);
   }
 
   getPlatformaIcon(plataforma: string): string {

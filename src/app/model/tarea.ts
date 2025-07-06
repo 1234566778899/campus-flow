@@ -2,9 +2,9 @@ export interface Tarea {
   idTarea?: number;
   titulo: string;
   descripcion: string;
-  fechaLimite: Date; 
+  fechaLimite: Date;
   prioridad: string;
-  id_estudiante: number; 
-  id_horario: number; 
+  id_estudiante: number;
+  id_horario: number;
   estado: boolean;
 }

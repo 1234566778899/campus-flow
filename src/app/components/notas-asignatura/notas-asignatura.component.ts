@@ -60,11 +60,8 @@ export class NotasAsignaturaComponent implements OnInit {
     this.estudianteService.getEstudianteByUserId(userId).subscribe({
       next: (estudiante: Estudiante) => {
         if (estudiante && estudiante.IdEstudiante) {
-          console.log('Estudiante ID encontrado:', estudiante.IdEstudiante);
-          // Paso 2: Obtener todas las notas para ese IdEstudiante
           this.notaService.getNotasByEstudianteId(estudiante.IdEstudiante).subscribe({
             next: (notas: Nota[]) => {
-              console.log('Notas recibidas:', notas);
               this.allNotas = notas; // Asigna directamente todas las notas al dataSource
               this.isLoading = false;
             },

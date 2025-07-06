@@ -1,0 +1,64 @@
+.modal-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.modal-content {
+    max-height: 80vh;
+}
+
+/* Stepper customization */
+::ng-deep .mat-stepper-horizontal {
+    margin-bottom: 24px;
+}
+
+::ng-deep .mat-stepper-header {
+    padding: 12px 24px;
+}
+
+::ng-deep .mat-step-header .mat-step-icon {
+    background-color: #6366f1;
+}
+
+::ng-deep .mat-step-header .mat-step-icon-selected {
+    background-color: #4f46e5;
+}
+
+/* Card selection styles */
+.border-gray-200:hover {
+    border-color: #a5b4fc;
+}
+
+/* Animation */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Snackbar styles */
+.snackbar-success {
+    background-color: #4caf50 !important;
+    color: white !important;
+}
+
+.snackbar-error {
+    background-color: #f44336 !important;
+    color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .grid.grid-cols-1.md\\:grid-cols-2,
+    .grid.grid-cols-1.md\\:grid-cols-3 {
+        grid-template-columns: 1fr;
+    }
+}

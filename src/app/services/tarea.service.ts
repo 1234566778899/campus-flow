@@ -7,19 +7,43 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TareaService {
-  private API = 'http://localhost:8080/api/campusflow/tarea';
+  // Corregida la URL para coincidir con el controller
+  private API = 'http://localhost:8080/api/campusflow/tareas';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
+
+  // Listar todas las tareas
   listar(): Observable<Tarea[]> {
     return this.http.get<Tarea[]>(this.API);
   }
+
+  // Registrar nueva tarea
   registrar(tarea: Tarea): Observable<Tarea> {
     return this.http.post<Tarea>(this.API, tarea);
   }
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API}/${id}`);
+
+  // Modificar tarea existente
+  modificar(id: number, tarea: Tarea): Observable<Tarea> {
+    return this.http.put<Tarea>(`${this.API}/${id}`, tarea);
   }
+
+  // Eliminar tarea (eliminación lógica)
+  eliminar(id: number): Observable<Tarea> {
+    return this.http.delete<Tarea>(`${this.API}/${id}`);
+  }
+
+  // Obtener tarea por ID
   obtenerPorId(id: number): Observable<Tarea> {
     return this.http.get<Tarea>(`${this.API}/${id}`);
+  }
+
+  // Obtener tareas activas por estudiante
+  obtenerTareasActivasPorEstudiante(idEstudiante: number): Observable<Tarea[]> {
+    return this.http.get<Tarea[]>(`${this.API}/estudiante/${idEstudiante}/activas`);
+  }
+
+  // Obtener tareas por prioridad
+  obtenerTareasPorPrioridad(prioridad: string): Observable<Tarea[]> {
+    return this.http.get<Tarea[]>(`${this.API}/prioridad/${prioridad}`);
   }
 }

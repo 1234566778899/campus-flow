@@ -1,24 +1,28 @@
+// src/app/app.config.ts
 import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations'; // Importar
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'; // Importar
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-import { routes } from './app.routes'; // Asegúrate de que esta ruta sea correcta
-import { JwtInterceptor } from './interceptors/interceptor';
+import { routes } from './app.routes';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), // Mantener si lo necesitas para optimización de Zone.js
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAnimations(), // Necesario para Angular Material
-    // Configurar HttpClient con soporte para interceptores basados en DI
+    provideAnimations(),
+
+    // ⚡ CONFIGURACIÓN CRÍTICA DEL INTERCEPTOR
     provideHttpClient(withInterceptorsFromDi()),
-    // Registrar tu JwtInterceptor
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: JwtInterceptor,
-      multi: true, // Permite que haya múltiples interceptores en la aplicación
+      useClass: AuthInterceptor,
+      multi: true,
     },
+
     {
       provide: LOCALE_ID,
       useValue: 'es'

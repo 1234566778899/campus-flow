@@ -4,17 +4,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Tarea } from '../../model/tarea';
+import { TareaService } from '../../services/tarea.service';
 
-interface Tarea {
-  idTarea: number;
-  titulo: string;
-  fechaLimite: Date;
-  prioridad: 'alta' | 'media' | 'baja';
-  estado: boolean;
-  asignatura: string;
-}
+
 
 interface EstadisticasEstudio {
   horasSemanales: number;
@@ -46,6 +41,34 @@ export class ResumeComponent implements OnInit {
   diasDelCalendario: { dia: number | null, esHoy: boolean }[] = [];
   private hoy = new Date();
   tareasActivas: Tarea[] = [];
+  tareas: Tarea[] = [];
+  constructor(private tareaService: TareaService, private router: Router) {
+
+  }
+  ngOnInit(): void {
+    this.generarCalendario();
+    this.cargarEstadisticasEstudio();
+    this.cargarTareas();
+  }
+  navegarATareas(): void {
+
+    this.router.navigate(['/dashboard-estudiante/tareas']);
+  }
+  private cargarTareas(): void {
+    this.tareaService.listar().subscribe(
+      (data: Tarea[]) => {
+        // Convertir fechaLimite a tipo Date
+        this.tareas = data.map(t => ({
+          ...t,
+          fechaLimite: new Date(t.fechaLimite)
+        }));
+        console.log('Tareas cargadas:', this.tareas);
+      },
+      (error) => {
+        console.error('Error al cargar tareas:', error);
+      }
+    );
+  }
 
   estadisticasEstudio: EstadisticasEstudio = {
     horasSemanales: 0,
@@ -118,54 +141,9 @@ export class ResumeComponent implements OnInit {
     const diaHoy = diasSemana[hoy.getDay()];
     return dia === diaHoy;
   }
-  // Datos de ejemplo para las tareas (agregar en ngOnInit o como propiedad)
-  private tareasEjemplo: Tarea[] = [
-    {
-      idTarea: 1,
-      titulo: 'Presentación de proyecto',
-      fechaLimite: new Date(), // Hoy
-      prioridad: 'alta',
-      estado: false,
-      asignatura: 'Programación Web'
-    },
-    {
-      idTarea: 2,
-      titulo: 'Examen de medio término',
-      fechaLimite: new Date(Date.now() + 24 * 60 * 60 * 1000), // Mañana
-      prioridad: 'alta',
-      estado: false,
-      asignatura: 'Matemáticas'
-    },
-    {
-      idTarea: 3,
-      titulo: 'Sesión de estudio en grupo',
-      fechaLimite: new Date(), // Hoy
-      prioridad: 'media',
-      estado: false,
-      asignatura: 'Historia'
-    },
-    {
-      idTarea: 4,
-      titulo: 'Ensayo de literatura',
-      fechaLimite: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // En 3 días
-      prioridad: 'baja',
-      estado: false,
-      asignatura: 'Literatura'
-    }
-  ];
-  ngOnInit(): void {
-    this.generarCalendario();
-    this.cargarEstadisticasEstudio();
-  }
-  constructor() {
-    this.cargarTareas();
-  }
-  private cargarTareas(): void {
-    // Filtrar solo tareas activas y limitarlas a 3 para el resumen
-    this.tareasActivas = this.tareasEjemplo
-      .filter(tarea => !tarea.estado)
-      .slice(0, 3);
-  }
+
+
+
 
   private esFechaHoy(fecha: Date): boolean {
     const hoy = new Date();
@@ -219,11 +197,7 @@ export class ResumeComponent implements OnInit {
     }
   }
 
-  navegarATareas(): void {
-    // Implementar navegación - por ejemplo:
-    // this.router.navigate(['/dashboard-estudiante/tareas']);
-    console.log('Navegando a todas las tareas...');
-  }
+
   private generarCalendario(): void {
     const anio = this.fechaActual.getFullYear();
     const mes = this.fechaActual.getMonth();

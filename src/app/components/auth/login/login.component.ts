@@ -123,16 +123,13 @@ export class LoginComponent implements OnInit {
           panelClass: ['success-snackbar']
         });
 
-        // Aquí puedes redirigir según el rol del usuario
-        // Por ejemplo, si el response incluye información del rol:
-        // if (response.role === 'ESTUDIANTE') {
-        //   this.router.navigate(['/dashboard-estudiante']);
-        // } else if (response.role === 'PROFESOR') {
-        //   this.router.navigate(['/dashboard-profesor']);
-        // }
 
-        // Por ahora, redirección genérica:
-        this.router.navigate(['/dashboard-estudiante']);
+        if (response.role === 'ESTUDIANTE') {
+          this.router.navigate(['/dashboard-estudiante']);
+        } else if (response.role === 'PROFESOR') {
+          this.router.navigate(['/dashboard-profesor']);
+        }
+
       },
       error: (err) => {
         this.isLoading = false;

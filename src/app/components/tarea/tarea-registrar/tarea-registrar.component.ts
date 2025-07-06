@@ -15,23 +15,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
-export interface Tarea {
-  idTarea?: number;
-  titulo: string;
-  descripcion: string;
-  fechaLimite: Date;
-  prioridad: string;
-  id_estudiante: number;
-  id_horario: number;
-  estado: boolean;
-}
+import { TareaService } from '../../../services/tarea.service';
+import { Horario } from '../../../model/horario';
+import { Tarea } from '../../../model/tarea';
 
-export interface Horario {
-  idHorario: number;
-  nombreAsignatura: string;
-  profesor: string;
-  aula: string;
-}
 
 @Component({
   selector: 'app-tarea-registrar',
@@ -69,19 +56,11 @@ export class TareaRegistrarComponent implements OnInit {
     { value: 'baja', label: 'Baja', color: 'text-green-600', icon: 'keyboard_arrow_down' }
   ];
 
-  // Datos de ejemplo para horarios (reemplazar con servicio real)
-  private horariosEjemplo: Horario[] = [
-    { idHorario: 1, nombreAsignatura: 'Matemáticas Avanzadas', profesor: 'Dr. García', aula: 'A-101' },
-    { idHorario: 2, nombreAsignatura: 'Física Cuántica', profesor: 'Dra. López', aula: 'B-205' },
-    { idHorario: 3, nombreAsignatura: 'Historia Mundial', profesor: 'Prof. Martínez', aula: 'C-301' },
-    { idHorario: 4, nombreAsignatura: 'Química Orgánica', profesor: 'Dr. Rodríguez', aula: 'D-102' },
-    { idHorario: 5, nombreAsignatura: 'Programación Web', profesor: 'Ing. Sánchez', aula: 'E-404' }
-  ];
-
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private tareaService: TareaService // Inyectar el servicio real
   ) {
     this.tareaForm = this.createForm();
   }
@@ -112,8 +91,17 @@ export class TareaRegistrarComponent implements OnInit {
   }
 
   cargarHorarios() {
-    // Aquí normalmente harías una llamada a tu servicio
-    this.horarios = this.horariosEjemplo;
+    // Aquí puedes implementar la carga real de horarios desde el backend
+    // Por ahora mantengo los datos de ejemplo, pero puedes hacer:
+    // this.horarioService.listar().subscribe(horarios => this.horarios = horarios);
+
+    this.horarios = [
+      { idHorario: 1, nombreAsignatura: 'Matemáticas Avanzadas', profesor: 'Dr. García', aula: 'A-101' },
+      { idHorario: 2, nombreAsignatura: 'Física Cuántica', profesor: 'Dra. López', aula: 'B-205' },
+      { idHorario: 3, nombreAsignatura: 'Historia Mundial', profesor: 'Prof. Martínez', aula: 'C-301' },
+      { idHorario: 4, nombreAsignatura: 'Química Orgánica', profesor: 'Dr. Rodríguez', aula: 'D-102' },
+      { idHorario: 5, nombreAsignatura: 'Programación Web', profesor: 'Ing. Sánchez', aula: 'E-404' }
+    ];
   }
 
   onSubmit() {
@@ -125,34 +113,45 @@ export class TareaRegistrarComponent implements OnInit {
         descripcion: this.tareaForm.value.descripcion,
         fechaLimite: this.tareaForm.value.fechaLimite,
         prioridad: this.tareaForm.value.prioridad,
-        id_estudiante: 1, // Obtener del servicio de autenticación
-        id_horario: this.tareaForm.value.id_horario,
+        id_estudiante: 1, // TODO: Obtener del servicio de autenticación
+        id_horario: 1,
         estado: false
       };
 
-      // Simular llamada al backend
-      setTimeout(() => {
-        this.guardarTarea(nuevaTarea);
-      }, 1500);
+      // Llamada real al backend
+      this.tareaService.registrar(nuevaTarea).subscribe({
+        next: (tareaGuardada) => {
+          this.isLoading = false;
+          this.mostrarMensajeExito('Tarea creada exitosamente');
+          this.router.navigate(['/dashboard-estudiante/tareas']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error al guardar la tarea:', error);
+          this.mostrarMensajeError('Error al crear la tarea. Inténtalo de nuevo.');
+        }
+      });
     } else {
       this.marcarCamposComoTocados();
     }
   }
 
-  private guardarTarea(tarea: Tarea) {
-    // Aquí harías la llamada real a tu servicio
-    console.log('Guardando tarea:', tarea);
-
-    this.isLoading = false;
-    this.snackBar.open('Tarea creada exitosamente', 'Cerrar', {
+  private mostrarMensajeExito(mensaje: string) {
+    this.snackBar.open(mensaje, 'Cerrar', {
       duration: 3000,
       horizontalPosition: 'end',
       verticalPosition: 'top',
       panelClass: ['success-snackbar']
     });
+  }
 
-    // Navegar de vuelta a la lista
-    this.router.navigate(['/dashboard-estudiante/tareas']);
+  private mostrarMensajeError(mensaje: string) {
+    this.snackBar.open(mensaje, 'Cerrar', {
+      duration: 5000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar']
+    });
   }
 
   private marcarCamposComoTocados() {

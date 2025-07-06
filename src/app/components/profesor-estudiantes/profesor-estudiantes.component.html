@@ -1,0 +1,359 @@
+<!-- src/app/components/profesor/profesor-estudiantes/profesor-estudiantes.component.html -->
+<div class="estudiantes-container p-6 max-w-7xl mx-auto">
+
+    <!-- Header Section -->
+    <div class="header-section mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1
+                    class="flex items-center gap-3 text-3xl font-bold text-gray-900">
+                    <mat-icon class="text-blue-600">people</mat-icon>
+                    Gestión de Estudiantes
+                </h1>
+                <p class="text-gray-600 mt-2 ml-12">
+                    Administra y consulta información de tus estudiantes
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button mat-raised-button
+                    color="primary"
+                    class="flex items-center gap-2"
+                    (click)="nuevoEstudiante()">
+                    <mat-icon>add</mat-icon>
+                    Nuevo Estudiante
+                </button>
+                <button mat-stroked-button
+                    class="flex items-center gap-2"
+                    (click)="exportData()">
+                    <mat-icon>download</mat-icon>
+                    Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <mat-card
+            class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
+            <mat-card-content class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-600 text-sm font-medium">Total
+                            Estudiantes</p>
+                        <p class="text-2xl font-bold text-gray-900">{{
+                            totalEstudiantes }}</p>
+                    </div>
+                    <mat-icon class="text-blue-500 text-4xl">people</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
+            <mat-card-content class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-green-600 text-sm font-medium">Estudiantes
+                            Activos</p>
+                        <p class="text-2xl font-bold text-gray-900">{{
+                            estudiantesActivos }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-green-500 text-4xl">check_circle</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500">
+            <mat-card-content class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-600 text-sm font-medium">Promedio
+                            General</p>
+                        <p class="text-2xl font-bold text-gray-900">{{
+                            promedioGeneral.toFixed(1) }}</p>
+                    </div>
+                    <mat-icon class="text-purple-500 text-4xl">grade</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-orange-500">
+            <mat-card-content class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-600 text-sm font-medium">Nuevos
+                            este Mes</p>
+                        <p class="text-2xl font-bold text-gray-900">{{
+                            nuevosEsteMes }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-orange-500 text-4xl">person_add</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Filters and Search -->
+    <mat-card class="filter-card mb-6">
+        <mat-card-content class="p-6">
+            <form [formGroup]="filterForm"
+                class="flex flex-wrap gap-4 items-end">
+
+                <!-- Search Input -->
+                <mat-form-field appearance="outline" class="flex-1 min-w-80">
+                    <mat-label>Buscar estudiantes</mat-label>
+                    <input matInput
+                        formControlName="search"
+                        placeholder="Nombre, email o carrera..."
+                        (keyup)="applyFilter()">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <!-- Carrera Filter -->
+                <mat-form-field appearance="outline" class="min-w-48">
+                    <mat-label>Carrera</mat-label>
+                    <mat-select formControlName="carrera"
+                        (selectionChange)="applyFilter()">
+                        <mat-option value>Todas las carreras</mat-option>
+                        <mat-option *ngFor="let carrera of carreras"
+                            [value]="carrera">
+                            {{ carrera }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Ciclo Filter -->
+                <mat-form-field appearance="outline" class="min-w-32">
+                    <mat-label>Ciclo</mat-label>
+                    <mat-select formControlName="ciclo"
+                        (selectionChange)="applyFilter()">
+                        <mat-option value>Todos</mat-option>
+                        <mat-option *ngFor="let ciclo of ciclos"
+                            [value]="ciclo">
+                            {{ ciclo }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Estado Filter -->
+                <mat-form-field appearance="outline" class="min-w-40">
+                    <mat-label>Estado</mat-label>
+                    <mat-select formControlName="estado"
+                        (selectionChange)="applyFilter()">
+                        <mat-option value>Todos</mat-option>
+                        <mat-option value="activo">Activo</mat-option>
+                        <mat-option value="inactivo">Inactivo</mat-option>
+                        <mat-option value="suspendido">Suspendido</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Clear Filters Button -->
+                <button mat-button
+                    type="button"
+                    (click)="clearFilters()"
+                    class="h-14">
+                    <mat-icon>clear</mat-icon>
+                    Limpiar
+                </button>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Students Table -->
+    <mat-card class="table-card">
+        <mat-card-content class="p-0">
+
+            <!-- Table Header -->
+            <div class="table-header p-6 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Lista de Estudiantes
+                        <mat-chip class="ml-3" color="primary">
+                            {{ dataSource.filteredData.length }} estudiantes
+                        </mat-chip>
+                    </h3>
+
+                    <div class="flex gap-2">
+                        <button mat-icon-button
+                            matTooltip="Actualizar datos"
+                            (click)="refreshData()">
+                            <mat-icon>refresh</mat-icon>
+                        </button>
+                        <button mat-icon-button
+                            matTooltip="Configurar columnas">
+                            <mat-icon>view_column</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container overflow-x-auto">
+                <table mat-table [dataSource]="dataSource" matSort
+                    class="w-full">
+
+                    <!-- Avatar y Nombre Column -->
+                    <ng-container matColumnDef="estudiante">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="nombres" class="w-80">
+                            Estudiante
+                        </th>
+                        <td mat-cell *matCellDef="let estudiante" class="py-4">
+                            <div class="flex items-center gap-3">
+                                <img
+                                    [src]="estudiante.avatar || getDefaultAvatar(estudiante.nombres)"
+                                    [alt]="estudiante.nombres"
+                                    class="w-10 h-10 rounded-full border-2 border-gray-200">
+                                <div>
+                                    <div class="font-medium text-gray-900">
+                                        {{ estudiante.nombres }} {{
+                                        estudiante.apellidos }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{
+                                        estudiante.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Carrera Column -->
+                    <ng-container matColumnDef="carrera">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header
+                            class="w-48">Carrera</th>
+                        <td mat-cell *matCellDef="let estudiante">
+                            <div class="font-medium text-gray-900">{{
+                                estudiante.carrera }}</div>
+                            <div class="text-sm text-gray-500">Ciclo {{
+                                estudiante.ciclo }}</div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Promedio Column -->
+                    <ng-container matColumnDef="promedio">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header
+                            class="w-32">Promedio</th>
+                        <td mat-cell *matCellDef="let estudiante">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    [class]="getPromedioClass(estudiante.promedio)"
+                                    class="px-2 py-1 rounded-full text-sm font-medium">
+                                    {{ estudiante.promedio.toFixed(1) }}
+                                </span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Créditos Column -->
+                    <ng-container matColumnDef="creditos">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header
+                            class="w-28">Créditos</th>
+                        <td mat-cell *matCellDef="let estudiante">
+                            <span class="text-gray-900 font-medium">{{
+                                estudiante.creditos }}</span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Estado Column -->
+                    <ng-container matColumnDef="estado">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header
+                            class="w-32">Estado</th>
+                        <td mat-cell *matCellDef="let estudiante">
+                            <mat-chip
+                                [color]="getEstadoColor(estudiante.estado)"
+                                selected size="small">
+                                {{ getEstadoLabel(estudiante.estado) }}
+                            </mat-chip>
+                        </td>
+                    </ng-container>
+
+                    <!-- Asignaturas Column -->
+                    <ng-container matColumnDef="asignaturas">
+                        <th mat-header-cell *matHeaderCellDef
+                            class="w-48">Asignaturas</th>
+                        <td mat-cell *matCellDef="let estudiante">
+                            <div class="flex flex-wrap gap-1">
+                                <mat-chip
+                                    *ngFor="let asignatura of estudiante.asignaturas.slice(0, 2)"
+                                    size="small"
+                                    class="text-xs">
+                                    {{ asignatura }}
+                                </mat-chip>
+                                <mat-chip
+                                    *ngIf="estudiante.asignaturas.length > 2"
+                                    size="small"
+                                    color="accent"
+                                    [matTooltip]="getTooltipAsignaturas(estudiante.asignaturas.slice(2))">
+                                    +{{ estudiante.asignaturas.length - 2 }}
+                                </mat-chip>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef
+                            class="w-32">Acciones</th>
+                        <td mat-cell *matCellDef="let estudiante">
+                            <button mat-icon-button
+                                [matMenuTriggerFor]="actionMenu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+
+                            <mat-menu #actionMenu="matMenu">
+                                <button mat-menu-item
+                                    (click)="verDetalle(estudiante)">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span>Ver Detalle</span>
+                                </button>
+                                <button mat-menu-item
+                                    (click)="editarEstudiante(estudiante)">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Editar</span>
+                                </button>
+                                <button mat-menu-item
+                                    (click)="verNotas(estudiante)">
+                                    <mat-icon>grade</mat-icon>
+                                    <span>Ver Notas</span>
+                                </button>
+                                <button mat-menu-item
+                                    (click)="enviarMensaje(estudiante)">
+                                    <mat-icon>message</mat-icon>
+                                    <span>Enviar Mensaje</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item
+                                    (click)="cambiarEstado(estudiante)"
+                                    [class.text-red-600]="estudiante.estado === 'activo'">
+                                    <mat-icon>{{ estudiante.estado === 'activo'
+                                        ? 'block' : 'check_circle' }}</mat-icon>
+                                    <span>{{ estudiante.estado === 'activo' ?
+                                        'Suspender' : 'Activar' }}</span>
+                                </button>
+                            </mat-menu>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row
+                        *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                        class="hover:bg-gray-50 transition-colors duration-200"></tr>
+                </table>
+            </div>
+
+            <!-- Paginator -->
+            <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]"
+                [pageSize]="25"
+                showFirstLastButtons
+                class="border-t border-gray-200">
+            </mat-paginator>
+
+        </mat-card-content>
+    </mat-card>
+</div>

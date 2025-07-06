@@ -1,0 +1,513 @@
+<!-- src/app/components/profesor/profesor-eventos/profesor-eventos.component.html -->
+<div class="eventos-container p-6 max-w-7xl mx-auto">
+
+    <!-- Header Section -->
+    <div class="header-section mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1
+                    class="flex items-center gap-3 text-3xl font-bold text-gray-900">
+                    <mat-icon class="text-indigo-600">event</mat-icon>
+                    Gestión de Eventos
+                </h1>
+                <p class="text-gray-600 mt-2 ml-12">
+                    Registra y administra eventos para tus estudiantes
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button mat-raised-button
+                    color="primary"
+                    class="flex items-center gap-2"
+                    (click)="nuevoEvento()">
+                    <mat-icon>add</mat-icon>
+                    Nuevo Evento
+                </button>
+                <button mat-stroked-button
+                    class="flex items-center gap-2"
+                    (click)="exportarEventos()">
+                    <mat-icon>download</mat-icon>
+                    Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-indigo-50 to-indigo-100 border-l-4 border-indigo-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-indigo-600 text-sm font-medium">Total
+                            Eventos</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.totalEventos }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-indigo-500 text-3xl">event_note</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-blue-600 text-sm font-medium">Programados</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.eventosProgramados }}</p>
+                    </div>
+                    <mat-icon class="text-blue-500 text-3xl">schedule</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p
+                            class="text-green-600 text-sm font-medium">Completados</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.eventosCompletados }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-green-500 text-3xl">check_circle</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-orange-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-600 text-sm font-medium">Hoy</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.eventosHoy }}</p>
+                    </div>
+                    <mat-icon class="text-orange-500 text-3xl">today</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card
+            class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500">
+            <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-600 text-sm font-medium">Próximos
+                            (7 días)</p>
+                        <p class="text-xl font-bold text-gray-900">{{
+                            estadisticas.proximosEventos }}</p>
+                    </div>
+                    <mat-icon
+                        class="text-purple-500 text-3xl">upcoming</mat-icon>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+
+    <!-- Filtros -->
+    <mat-card class="filter-card mb-6">
+        <mat-card-content class="p-6">
+            <form [formGroup]="filtroForm">
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+
+                    <!-- Búsqueda -->
+                    <mat-form-field appearance="outline"
+                        class="col-span-1 lg:col-span-2">
+                        <mat-label>Buscar eventos</mat-label>
+                        <input matInput
+                            formControlName="search"
+                            placeholder="Título, descripción o asignatura...">
+                        <mat-icon matSuffix>search</mat-icon>
+                    </mat-form-field>
+
+                    <!-- Asignatura -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Asignatura</mat-label>
+                        <mat-select formControlName="asignatura">
+                            <mat-option value>Todas</mat-option>
+                            <mat-option *ngFor="let asignatura of asignaturas"
+                                [value]="asignatura.id">
+                                {{ asignatura.nombre }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Tipo -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Tipo</mat-label>
+                        <mat-select formControlName="tipo">
+                            <mat-option value>Todos</mat-option>
+                            <mat-option *ngFor="let tipo of tiposEvento"
+                                [value]="tipo.value">
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-sm">{{ tipo.icon
+                                        }}</mat-icon>
+                                    <span>{{ tipo.label }}</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Estado -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Estado</mat-label>
+                        <mat-select formControlName="estado">
+                            <mat-option value>Todos</mat-option>
+                            <mat-option *ngFor="let estado of estadosEvento"
+                                [value]="estado.value">
+                                {{ estado.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Botón limpiar -->
+                    <div class="flex items-end">
+                        <button mat-button
+                            type="button"
+                            (click)="clearFilters()"
+                            class="h-14 w-full">
+                            <mat-icon>clear</mat-icon>
+                            Limpiar
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Filtros de fecha -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Fecha desde</mat-label>
+                        <input matInput
+                            [matDatepicker]="pickerDesde"
+                            formControlName="fechaDesde">
+                        <mat-datepicker-toggle matSuffix
+                            [for]="pickerDesde"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerDesde></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Fecha hasta</mat-label>
+                        <input matInput
+                            [matDatepicker]="pickerHasta"
+                            formControlName="fechaHasta">
+                        <mat-datepicker-toggle matSuffix
+                            [for]="pickerHasta"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerHasta></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+            </form>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Tabla de Eventos -->
+    <mat-card class="table-card">
+        <mat-card-content class="p-0">
+
+            <!-- Table Header -->
+            <div class="table-header p-6 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Lista de Eventos
+                        <mat-chip class="ml-3" color="primary">
+                            {{ dataSource.filteredData.length }} eventos
+                        </mat-chip>
+                    </h3>
+
+                    <div class="flex gap-2">
+                        <button mat-icon-button
+                            matTooltip="Actualizar datos"
+                            (click)="loadEventos()">
+                            <mat-icon>refresh</mat-icon>
+                        </button>
+                        <button mat-icon-button
+                            matTooltip="Vista de calendario">
+                            <mat-icon>calendar_view_month</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container overflow-x-auto">
+                <table mat-table [dataSource]="dataSource" matSort
+                    class="w-full">
+
+                    <!-- Evento Column -->
+                    <ng-container matColumnDef="evento">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="titulo" class="w-80">
+                            Evento
+                        </th>
+                        <td mat-cell *matCellDef="let evento" class="py-4">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                                    [class]="getPrioridadClass(evento.prioridad)">
+                                    <mat-icon class="text-white text-lg">{{
+                                        getTipoIcon(evento.tipo) }}</mat-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h4
+                                            class="font-semibold text-gray-900 truncate">{{
+                                            evento.titulo }}</h4>
+                                        <mat-chip
+                                            *ngIf="esEventoHoy(evento.fechaInicio)"
+                                            color="accent"
+                                            size="small"
+                                            class="text-xs">
+                                            HOY
+                                        </mat-chip>
+                                        <mat-chip
+                                            *ngIf="esEventoProximo(evento.fechaInicio) && !esEventoHoy(evento.fechaInicio)"
+                                            color="primary"
+                                            size="small"
+                                            class="text-xs">
+                                            PRÓXIMO
+                                        </mat-chip>
+                                    </div>
+                                    <p
+                                        class="text-sm text-gray-600 mb-2 line-clamp-2">{{
+                                        evento.descripcion }}</p>
+                                    <div
+                                        class="flex items-center gap-4 text-xs text-gray-500">
+                                        <div class="flex items-center gap-1">
+                                            <mat-icon class="text-xs">{{
+                                                getModalidadIcon(evento.modalidad)
+                                                }}</mat-icon>
+                                            <span class="capitalize">{{
+                                                evento.modalidad }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1"
+                                            *ngIf="evento.ubicacion">
+                                            <mat-icon
+                                                class="text-xs">place</mat-icon>
+                                            <span>{{ evento.ubicacion }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1"
+                                            *ngIf="evento.recordatorios">
+                                            <mat-icon
+                                                class="text-xs text-blue-500">notifications_active</mat-icon>
+                                            <span>Recordatorios</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Asignatura Column -->
+                    <ng-container matColumnDef="asignatura">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="asignatura.nombre" class="w-48">
+                            Asignatura
+                        </th>
+                        <td mat-cell *matCellDef="let evento">
+                            <div>
+                                <div class="font-medium text-gray-900">{{
+                                    evento.asignatura.nombre }}</div>
+                                <div class="text-sm text-gray-500">{{
+                                    evento.asignatura.codigo }}</div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Fecha Column -->
+                    <ng-container matColumnDef="fecha">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="fechaInicio" class="w-48">
+                            Fecha y Hora
+                        </th>
+                        <td mat-cell *matCellDef="let evento">
+                            <div class="text-sm">
+                                <div class="font-medium text-gray-900">
+                                    {{ formatearFecha(evento.fechaInicio) }}
+                                </div>
+                                <div class="text-gray-600">
+                                    {{ formatearHora(evento.horaInicio) }} - {{
+                                    formatearHora(evento.horaFin) }}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1"
+                                    *ngIf="evento.fechaInicio !== evento.fechaFin">
+                                    Hasta: {{ formatearFecha(evento.fechaFin) }}
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Tipo Column -->
+                    <ng-container matColumnDef="tipo">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="tipo" class="w-32">
+                            Tipo
+                        </th>
+                        <td mat-cell *matCellDef="let evento">
+                            <div class="flex items-center gap-2">
+                                <mat-icon class="text-gray-600 text-sm">{{
+                                    getTipoIcon(evento.tipo) }}</mat-icon>
+                                <span class="text-sm">{{
+                                    getTipoLabel(evento.tipo) }}</span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Estado Column -->
+                    <ng-container matColumnDef="estado">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="estado" class="w-32">
+                            Estado
+                        </th>
+                        <td mat-cell *matCellDef="let evento">
+                            <mat-chip [color]="getEstadoColor(evento.estado)"
+                                selected size="small">
+                                {{ getEstadoLabel(evento.estado) }}
+                            </mat-chip>
+                        </td>
+                    </ng-container>
+
+                    <!-- Participantes Column -->
+                    <ng-container matColumnDef="participantes">
+                        <th mat-header-cell *matHeaderCellDef
+                            mat-sort-header="participantes" class="w-32">
+                            Participantes
+                        </th>
+                        <td mat-cell *matCellDef="let evento">
+                            <div class="flex items-center gap-2">
+                                <mat-icon
+                                    class="text-gray-500 text-sm">people</mat-icon>
+                                <span class="font-medium">{{
+                                    evento.participantes }}</span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef
+                            class="w-32">Acciones</th>
+                        <td mat-cell *matCellDef="let evento">
+                            <button mat-icon-button
+                                [matMenuTriggerFor]="actionMenu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+
+                            <mat-menu #actionMenu="matMenu">
+                                <button mat-menu-item
+                                    (click)="editarEvento(evento)">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Editar</span>
+                                </button>
+                                <button mat-menu-item
+                                    (click)="duplicarEvento(evento)">
+                                    <mat-icon>content_copy</mat-icon>
+                                    <span>Duplicar</span>
+                                </button>
+                                <button mat-menu-item
+                                    (click)="verParticipantes(evento)">
+                                    <mat-icon>people</mat-icon>
+                                    <span>Ver Participantes</span>
+                                </button>
+
+                                <mat-divider></mat-divider>
+
+                                <!-- Opciones de estado -->
+                                <ng-container
+                                    *ngIf="evento.estado === 'programado'">
+                                    <button mat-menu-item
+                                        (click)="cambiarEstadoEvento(evento, 'en_curso')">
+                                        <mat-icon
+                                            class="text-blue-600">play_arrow</mat-icon>
+                                        <span>Iniciar Evento</span>
+                                    </button>
+                                    <button mat-menu-item
+                                        (click)="cambiarEstadoEvento(evento, 'cancelado')">
+                                        <mat-icon
+                                            class="text-red-600">cancel</mat-icon>
+                                        <span>Cancelar</span>
+                                    </button>
+                                </ng-container>
+
+                                <ng-container
+                                    *ngIf="evento.estado === 'en_curso'">
+                                    <button mat-menu-item
+                                        (click)="cambiarEstadoEvento(evento, 'completado')">
+                                        <mat-icon
+                                            class="text-green-600">check_circle</mat-icon>
+                                        <span>Marcar Completado</span>
+                                    </button>
+                                </ng-container>
+
+                                <!-- Recordatorios -->
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item
+                                    (click)="enviarRecordatorio(evento)"
+                                    [disabled]="evento.estado === 'completado' || evento.estado === 'cancelado'">
+                                    <mat-icon>notifications</mat-icon>
+                                    <span>Enviar Recordatorio</span>
+                                </button>
+
+                                <!-- Eliminar -->
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item
+                                    (click)="eliminarEvento(evento)"
+                                    class="text-red-600">
+                                    <mat-icon
+                                        class="text-red-600">delete</mat-icon>
+                                    <span>Eliminar</span>
+                                </button>
+                            </mat-menu>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row
+                        *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                        class="hover:bg-gray-50 transition-colors duration-200"></tr>
+                </table>
+            </div>
+
+            <!-- Paginator -->
+            <mat-paginator [pageSizeOptions]="[10, 25, 50]"
+                [pageSize]="25"
+                showFirstLastButtons
+                class="border-t border-gray-200">
+            </mat-paginator>
+
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Estado vacío -->
+    <div *ngIf="dataSource.filteredData.length === 0" class="text-center py-16">
+        <mat-card class="max-w-md mx-auto">
+            <mat-card-content class="p-8">
+                <mat-icon
+                    class="text-6xl text-gray-400 mb-4">event_busy</mat-icon>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay
+                    eventos</h3>
+                <p class="text-gray-500 mb-6">
+                    No se encontraron eventos que coincidan con los filtros
+                    seleccionados.
+                </p>
+                <button mat-raised-button color="primary"
+                    (click)="nuevoEvento()">
+                    <mat-icon class="mr-2">add</mat-icon>
+                    Crear Primer Evento
+                </button>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+</div>

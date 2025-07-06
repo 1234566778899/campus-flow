@@ -1,4 +1,3 @@
-<!-- src/app/components/dashboard-navbar/dashboard-navbar.component.html -->
 <mat-toolbar class="dashboard-top-bar">
   <div class="search-section">
     <mat-form-field appearance="outline" class="search-input">
@@ -8,50 +7,92 @@
     </mat-form-field>
   </div>
 
-  <!-- Nueva sección de navegación para el dashboard -->
+  <!-- Navegación específica por rol -->
   <div class="dashboard-nav-links">
-    <a mat-button routerLink="/dashboard-estudiante/home"
-      routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
-      <mat-icon>dashboard</mat-icon> Dashboard
-    </a>
-    <!-- ¡Nuevo botón de Notas! -->
-    <a mat-button routerLink="/dashboard-profesor/gestionar-notas"
-      routerLinkActive="active-link">
-      <mat-icon>grade</mat-icon> Notas
-    </a>
+    <ng-container *ngIf="userRole === 'ROLE_ESTUDIANTE'">
+      <a mat-button routerLink="/dashboard-estudiante/home"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{exact: true}">
+        <mat-icon>dashboard</mat-icon> Dashboard
+      </a>
+      <a mat-button routerLink="/dashboard-estudiante/notas"
+        routerLinkActive="active-link">
+        <mat-icon>grade</mat-icon> Notas
+      </a>
+      <a mat-button routerLink="/dashboard-estudiante/recompensas"
+        routerLinkActive="active-link">
+        <mat-icon>emoji_events</mat-icon> Recompensas
+      </a>
+      <a mat-button routerLink="/dashboard-estudiante/tareas"
+        routerLinkActive="active-link">
+        <mat-icon>assignment</mat-icon> Tareas
+      </a>
+      <a mat-button routerLink="/dashboard-estudiante/eventos"
+        routerLinkActive="active-link">
+        <mat-icon>event</mat-icon> Eventos
+      </a>
+      <a mat-button routerLink="/dashboard-estudiante/foro"
+        routerLinkActive="active-link">
+        <mat-icon>forum</mat-icon> Foro
+      </a>
+      <a mat-button routerLink="/dashboard-estudiante/horario"
+        routerLinkActive="active-link">
+        <mat-icon>schedule</mat-icon> Horario
+      </a>
+    </ng-container>
 
-    <a mat-button routerLink="/dashboard-estudiante/recompensas"
-      routerLinkActive="active-link">
-      <mat-icon>emoji_events</mat-icon> Recompensas
-      <!-- ¡Nuevo botón de Recompensas! -->
-    </a>
-    <a mat-button routerLink="/dashboard-estudiante/tareas"
-      routerLinkActive="active-link">
-      <mat-icon>assignment</mat-icon> Tareas
-    </a>
-    <a mat-button routerLink="/dashboard-profesor/eventos"
-      routerLinkActive="active-link">
-      <mat-icon>event</mat-icon> Eventos
-    </a>
-    <a mat-button routerLink="/dashboard-estudiante/grupo-foro"
-      routerLinkActive="active-link">
-      <mat-icon>forum</mat-icon> Foro
-    </a>
-    <a mat-button routerLink="/dashboard-estudiante/horario"
-      routerLinkActive="active-link">
-      <mat-icon>schedule</mat-icon> Horario
-    </a>
+    <ng-container *ngIf="userRole === 'ROLE_PROFESOR'">
+      <a mat-button routerLink="/dashboard-profesor/home"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{exact: true}">
+        <mat-icon>dashboard</mat-icon> Dashboard
+      </a>
+      <a mat-button routerLink="/dashboard-profesor/estudiantes"
+        routerLinkActive="active-link">
+        <mat-icon>people</mat-icon> Estudiantes
+      </a>
+      <a mat-button routerLink="/dashboard-profesor/notas"
+        routerLinkActive="active-link">
+        <mat-icon>grade</mat-icon> Gestionar Notas
+      </a>
+      <a mat-button routerLink="/dashboard-profesor/eventos"
+        routerLinkActive="active-link">
+        <mat-icon>event</mat-icon> Eventos
+      </a>
+      <a mat-button routerLink="/dashboard-profesor/recompensas"
+        routerLinkActive="active-link">
+        <mat-icon>emoji_events</mat-icon> Recompensas
+      </a>
+      <a mat-button routerLink="/dashboard-profesor/foro"
+        routerLinkActive="active-link">
+        <mat-icon>forum</mat-icon> Foro
+      </a>
+    </ng-container>
   </div>
 
   <span class="spacer"></span>
-  <!-- Empuja la sección de usuario a la derecha -->
 
-  <div class="user-section">
-    <!-- Usar la propiedad userAvatar del componente -->
-    <img [src]="userAvatar" alt="User Avatar" class="user-avatar">
+  <div class="user-section" [matMenuTriggerFor]="userMenu">
+    <!-- <img [src]="userAvatar" alt="User Avatar" class="user-avatar"> -->
     <span>Bienvenido,</span>
-    <!-- Mostrar el nombre de usuario dinámicamente -->
     <span class="user-name">{{ userName }}</span>
     <mat-icon>keyboard_arrow_down</mat-icon>
   </div>
+
+  <!-- Menú de usuario -->
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item>
+      <mat-icon>person</mat-icon>
+      <span>Mi Perfil</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>settings</mat-icon>
+      <span>Configuración</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Cerrar Sesión</span>
+    </button>
+  </mat-menu>
 </mat-toolbar>

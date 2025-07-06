@@ -1,8 +1,6 @@
 export interface Horario {
-  idHorario?: number;
-  dia: Date; 
-  horaInicio: Date; 
-  horaFin: Date;
-  Estado: boolean;
-  idAsignatura: number;
+  idHorario: number;
+  nombreAsignatura: string;
+  profesor: string;
+  aula: string;
 }
