@@ -1,3 +1,4 @@
+// src/app/components/foro-listar/foro-listar.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { GrupoForoService } from '../../../services/grupo-foro.service';
 import { GrupoForo } from '../../../model/grupoForo';
@@ -19,6 +21,7 @@ import { GrupoForo } from '../../../model/grupoForo';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     RouterModule,
   ],
   templateUrl: './foro-listar.component.html',
@@ -33,7 +36,7 @@ export class ForoListarComponent implements OnInit {
   constructor(
     private grupoForoService: GrupoForoService,
     private snackBar: MatSnackBar,
-    private router: Router // Inyectar Router
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -47,6 +50,7 @@ export class ForoListarComponent implements OnInit {
     this.isLoading = true;
     this.grupoForoService.getGruposForo().subscribe({
       next: (data: GrupoForo[]) => {
+        console.log('Grupos de foro cargados:', data);
         this.gruposForo = data;
         this.isLoading = false;
       },
@@ -63,9 +67,10 @@ export class ForoListarComponent implements OnInit {
    * @param idGrupoForo El ID del grupo de foro.
    */
   verPublicaciones(idGrupoForo: number | undefined): void {
+    console.log('Ver publicaciones para el grupo de foro con ID:', idGrupoForo);
     if (idGrupoForo) {
       // Navega a la ruta de publicaciones, pasando el ID del grupo de foro
-      this.router.navigate(['/estudiante-dashboard/foro', idGrupoForo, 'publicaciones']);
+      this.router.navigate(['/dashboard-estudiante/foro/', idGrupoForo]);
     } else {
       this.snackBar.open('ID de foro no disponible.', 'Cerrar', { duration: 3000 });
     }

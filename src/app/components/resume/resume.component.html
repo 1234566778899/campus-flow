@@ -325,52 +325,41 @@
                 <mat-card-title>Próximos eventos</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-                <div class="event-item">
-                    <span class="event-day">2</span>
-                    <div class="event-details">
-                        <p class="event-title">Conferencia de Invitados</p>
-                        <p class="event-time">10:00-11:00</p>
-                        <p class="event-description">5 de 5 sesiones, Dr.
-                            Smith</p>
+
+                <!-- Loading state -->
+                <div *ngIf="isLoadingEventos"
+                    class="flex items-center justify-center py-8">
+                    <mat-icon
+                        class="animate-spin text-blue-500">refresh</mat-icon>
+                    <span class="ml-2 text-gray-600">Cargando eventos...</span>
+                </div>
+
+                <!-- Eventos dinámicos de la API -->
+                <div *ngIf="!isLoadingEventos && proximosEventos.length > 0">
+                    <div *ngFor="let evento of proximosEventos"
+                        class="event-item">
+                        <span class="event-day">{{
+                            getDiaDelEvento(evento.fechaInicio) }}</span>
+                        <div class="event-details">
+                            <p class="event-title">{{ evento.nombre }}</p>
+                            <p class="event-time">{{
+                                getHoraEvento(evento.fechaInicio) }}</p>
+                            <p class="event-description">{{
+                                getDescripcionCorta(evento.descripcion) }}</p>
+                        </div>
                     </div>
                 </div>
-                <div class="event-item highlighted-event">
-                    <span class="event-day">5</span>
-                    <div class="event-details">
-                        <p class="event-title">Feria de Carreras</p>
-                        <p class="event-time">13:00-16:00</p>
-                        <p class="event-description">Abierto a todos los
-                            estudiantes</p>
-                    </div>
+
+                <!-- Estado vacío cuando no hay eventos -->
+                <div *ngIf="!isLoadingEventos && proximosEventos.length === 0"
+                    class="text-center py-8">
+                    <mat-icon
+                        class="text-gray-400 text-4xl mb-2">event_busy</mat-icon>
+                    <p class="text-gray-600">No hay eventos próximos</p>
                 </div>
-                <div class="event-item">
-                    <span class="event-day">8</span>
-                    <div class="event-details">
-                        <p class="event-title">Taller</p>
-                        <p class="event-time">14:00-15:30</p>
-                        <p class="event-description">3 de 5 sesiones, Ms.
-                            Taylor</p>
-                    </div>
-                </div>
-                <div class="event-item">
-                    <span class="event-day">1</span>
-                    <div class="event-details">
-                        <p class="event-title">Reunión de equipo</p>
-                        <p class="event-time">09:00-10:00</p>
-                        <p class="event-description">Evento recurrente</p>
-                    </div>
-                </div>
-                <div class="event-item">
-                    <span class="event-day">9</span>
-                    <div class="event-details">
-                        <p class="event-title">Grupo de estudio semanal</p>
-                        <p class="event-time">17:00-18:30</p>
-                        <p class="event-description">Cada miércoles</p>
-                    </div>
-                </div>
+
                 <button mat-button class="view-full-calendar-button">Ver
-                    calendario
-                    completo</button>
+                    calendario completo</button>
             </mat-card-content>
         </mat-card>
     </div>

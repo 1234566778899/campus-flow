@@ -17,49 +17,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDividerModule } from '@angular/material/divider';
+import { forkJoin } from 'rxjs';
+
+
+
+// Componentes modales
 import { RegistrarNotaModalComponent } from './registrar-nota-modal.component';
 import { EditarNotaModalComponent } from './editar-nota-modal.component';
-import { MatDividerModule } from '@angular/material/divider';
-
-interface NotaEstudiante {
-  id: number;
-  estudiante: {
-    id: number;
-    nombres: string;
-    apellidos: string;
-    email: string;
-    avatar?: string;
-  };
-  asignatura: {
-    id: number;
-    nombre: string;
-    codigo: string;
-  };
-  evaluaciones: Evaluacion[];
-  promedioFinal: number;
-  estado: 'aprobado' | 'desaprobado' | 'en_progreso';
-}
-
-interface Evaluacion {
-  id: number;
-  nombre: string;
-  tipo: 'examen' | 'practica' | 'tarea' | 'proyecto' | 'participacion';
-  nota: number | null;
-  peso: number;
-  fechaEvaluacion: Date;
-  fechaRegistro?: Date;
-  observaciones?: string;
-  estado: 'pendiente' | 'registrada' | 'modificada';
-}
-
-interface Asignatura {
-  id: number;
-  nombre: string;
-  codigo: string;
-  ciclo: number;
-  creditos: number;
-  estudiantesMatriculados: number;
-}
+import { Asignatura } from '../horario/horario-listar/horario-listar.component';
+import { Estudiante } from '../../model/estudiante';
+import { Nota } from '../../model/nota';
+import { NotaEstudiante } from '../../model/NotaEstudiante';
+import { NotaService } from '../../services/nota.service';
+import { EstudianteService } from '../../services/estudiante.service';
+import { AsignaturaService } from '../../services/asignatura.service';
+import { ResumenNotas } from '../../model/ResumenNotas';
+import { MatSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-profesor-notas',
@@ -81,7 +55,8 @@ interface Asignatura {
     MatTooltipModule,
     MatMenuModule,
     ReactiveFormsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSpinner
   ],
   templateUrl: './profesor-notas.component.html',
   styleUrls: ['./profesor-notas.component.css']
@@ -92,35 +67,41 @@ export class ProfesorNotasComponent implements OnInit {
 
   // Datos
   asignaturas: Asignatura[] = [];
+  estudiantes: Estudiante[] = [];
+  notas: Nota[] = [];
   asignaturaSeleccionada: Asignatura | null = null;
   dataSource = new MatTableDataSource<NotaEstudiante>();
-  evaluaciones: string[] = [];
+  tiposEvaluacion: string[] = ['Examen', 'Práctica', 'Tarea', 'Proyecto', 'Participación'];
 
   // Formularios
   filtroForm: FormGroup;
+  isLoading = false;
 
   // Configuración de tabla
-  displayedColumns: string[] = ['estudiante', 'evaluaciones', 'promedio', 'estado', 'acciones'];
+  displayedColumns: string[] = ['estudiante', 'notas', 'promedio', 'estado', 'acciones'];
 
   // Estadísticas
-  estadisticas = {
+  estadisticas: ResumenNotas = {
     totalEstudiantes: 0,
     aprobados: 0,
     desaprobados: 0,
     promedioGeneral: 0,
-    evaluacionesPendientes: 0
+    notasPendientes: 0
   };
 
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private notaService: NotaService,
+    private estudianteService: EstudianteService,
+    private asignaturaService: AsignaturaService
   ) {
     this.filtroForm = this.fb.group({
       search: [''],
       asignatura: ['', Validators.required],
       estado: [''],
-      evaluacion: ['']
+      tipoNota: ['']
     });
   }
 
@@ -136,189 +117,124 @@ export class ProfesorNotasComponent implements OnInit {
   }
 
   loadAsignaturas(): void {
-    // Aquí conectarías con tu servicio real
-    this.asignaturas = [
-      {
-        id: 1,
-        nombre: 'Programación Web',
-        codigo: 'CS-301',
-        ciclo: 5,
-        creditos: 4,
-        estudiantesMatriculados: 28
+    this.isLoading = true;
+    this.asignaturaService.getAsignaturasByProfesor().subscribe({
+      next: (asignaturas: any) => {
+        this.asignaturas = asignaturas;
+        this.isLoading = false;
       },
-      {
-        id: 2,
-        nombre: 'Base de Datos',
-        codigo: 'CS-302',
-        ciclo: 5,
-        creditos: 4,
-        estudiantesMatriculados: 25
-      },
-      {
-        id: 3,
-        nombre: 'Redes de Computadoras',
-        codigo: 'CS-303',
-        ciclo: 6,
-        creditos: 3,
-        estudiantesMatriculados: 22
+      error: (err) => {
+        console.error('Error al cargar asignaturas:', err);
+        this.snackBar.open('Error al cargar las asignaturas', 'Cerrar', { duration: 3000 });
+        this.isLoading = false;
+        // Fallback con datos de ejemplo si no hay endpoint
+        this.loadAsignaturasFallback();
       }
-    ];
+    });
+  }
+
+  loadAsignaturasFallback(): void {
+
   }
 
   setupFormSubscriptions(): void {
     this.filtroForm.get('asignatura')?.valueChanges.subscribe(asignaturaId => {
       if (asignaturaId) {
-        this.asignaturaSeleccionada = this.asignaturas.find(a => a.id === asignaturaId) || null;
+        this.asignaturaSeleccionada = this.asignaturas.find(a => a.idAsignatura === asignaturaId) || null;
         this.loadNotasAsignatura(asignaturaId);
       }
     });
   }
 
   loadNotasAsignatura(asignaturaId: number): void {
-    // Datos de ejemplo - conectar con tu servicio real
-    const notasEjemplo: NotaEstudiante[] = [
-      {
-        id: 1,
-        estudiante: {
-          id: 1,
-          nombres: 'Juan Carlos',
-          apellidos: 'Pérez García',
-          email: 'juan.perez@estudiante.edu',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Juan'
-        },
-        asignatura: {
-          id: asignaturaId,
-          nombre: this.asignaturaSeleccionada?.nombre || '',
-          codigo: this.asignaturaSeleccionada?.codigo || ''
-        },
-        evaluaciones: [
-          {
-            id: 1,
-            nombre: 'Examen Parcial',
-            tipo: 'examen',
-            nota: 16,
-            peso: 30,
-            fechaEvaluacion: new Date('2024-04-15'),
-            fechaRegistro: new Date('2024-04-16'),
-            estado: 'registrada'
-          },
-          {
-            id: 2,
-            nombre: 'Proyecto Final',
-            tipo: 'proyecto',
-            nota: 18,
-            peso: 40,
-            fechaEvaluacion: new Date('2024-05-20'),
-            fechaRegistro: new Date('2024-05-21'),
-            estado: 'registrada'
-          },
-          {
-            id: 3,
-            nombre: 'Participación',
-            tipo: 'participacion',
-            nota: 15,
-            peso: 20,
-            fechaEvaluacion: new Date('2024-06-01'),
-            estado: 'registrada'
-          },
-          {
-            id: 4,
-            nombre: 'Tarea 3',
-            tipo: 'tarea',
-            nota: null,
-            peso: 10,
-            fechaEvaluacion: new Date('2024-06-15'),
-            estado: 'pendiente'
-          }
-        ],
-        promedioFinal: 16.6,
-        estado: 'aprobado'
-      },
-      {
-        id: 2,
-        estudiante: {
-          id: 2,
-          nombres: 'María Elena',
-          apellidos: 'Rodriguez López',
-          email: 'maria.rodriguez@estudiante.edu',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria'
-        },
-        asignatura: {
-          id: asignaturaId,
-          nombre: this.asignaturaSeleccionada?.nombre || '',
-          codigo: this.asignaturaSeleccionada?.codigo || ''
-        },
-        evaluaciones: [
-          {
-            id: 5,
-            nombre: 'Examen Parcial',
-            tipo: 'examen',
-            nota: 14,
-            peso: 30,
-            fechaEvaluacion: new Date('2024-04-15'),
-            fechaRegistro: new Date('2024-04-16'),
-            estado: 'registrada'
-          },
-          {
-            id: 6,
-            nombre: 'Proyecto Final',
-            tipo: 'proyecto',
-            nota: 12,
-            peso: 40,
-            fechaEvaluacion: new Date('2024-05-20'),
-            fechaRegistro: new Date('2024-05-21'),
-            estado: 'registrada'
-          },
-          {
-            id: 7,
-            nombre: 'Participación',
-            tipo: 'participacion',
-            nota: 13,
-            peso: 20,
-            fechaEvaluacion: new Date('2024-06-01'),
-            estado: 'registrada'
-          },
-          {
-            id: 8,
-            nombre: 'Tarea 3',
-            tipo: 'tarea',
-            nota: null,
-            peso: 10,
-            fechaEvaluacion: new Date('2024-06-15'),
-            estado: 'pendiente'
-          }
-        ],
-        promedioFinal: 12.9,
-        estado: 'aprobado'
-      }
-    ];
+    this.isLoading = true;
 
-    this.dataSource.data = notasEjemplo;
+    // Cargar notas, estudiantes de la asignatura en paralelo
+    forkJoin({
+      notas: this.notaService.getNotasByAsignaturaId(asignaturaId),
+      estudiantes: this.estudianteService.getEstudiantesByAsignatura(asignaturaId)
+    }).subscribe({
+      next: ({ notas, estudiantes }) => {
+        this.notas = notas;
+        this.estudiantes = estudiantes;
+        this.procesarDatosParaTabla();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar datos:', err);
+        this.snackBar.open('Error al cargar los datos de la asignatura', 'Cerrar', { duration: 3000 });
+        this.isLoading = false;
+        // Fallback con datos de ejemplo
+        //   this.loadDatosEjemplo(asignaturaId);
+      }
+    });
+  }
+
+
+  procesarDatosParaTabla(): void {
+    const notasEstudiantes: NotaEstudiante[] = [];
+
+    this.estudiantes.forEach(estudiante => {
+      const notasEstudiante = this.notas;
+
+      // Calcular promedio ponderado
+      let promedioFinal = 0;
+      let pesoTotal = 0;
+
+      if (notasEstudiante.length > 0) {
+        notasEstudiante.forEach(nota => {
+          promedioFinal += (nota.Puntaje || 0) * ((nota.Peso_Nota || 0) / 100);
+          pesoTotal += (nota.Peso_Nota || 0);
+        });
+
+        if (pesoTotal > 0) {
+          promedioFinal = (promedioFinal / pesoTotal) * 100;
+        }
+      }
+
+      // Determinar estado
+      let estado: 'aprobado' | 'desaprobado' | 'en_progreso' = 'en_progreso';
+      if (pesoTotal >= 100) {
+        estado = promedioFinal >= 11 ? 'aprobado' : 'desaprobado';
+      }
+
+      const notaEstudiante: NotaEstudiante = {
+        estudiante: estudiante,
+        asignatura: this.asignaturaSeleccionada!,
+        notas: notasEstudiante,
+        promedioFinal: promedioFinal,
+        estado: estado,
+        notasPendientes: Math.max(0, 4 - notasEstudiante.length), // Asumiendo 4 evaluaciones
+        notasRegistradas: notasEstudiante.length
+      };
+
+      notasEstudiantes.push(notaEstudiante);
+    });
+
+    this.dataSource.data = notasEstudiantes;
     this.calcularEstadisticas();
-    this.extraerEvaluaciones();
   }
 
   setupFilter(): void {
-    this.dataSource.filterPredicate = (data: NotaEstudiante, filter: string) => {
-      if (!filter) return true;
+    // this.dataSource.filterPredicate = (data: NotaEstudiante, filter: string) => {
+    //   if (!filter) return true;
 
-      const filters = JSON.parse(filter);
-      const searchTerm = filters.search?.toLowerCase() || '';
-      const estadoFilter = filters.estado || '';
-      const evaluacionFilter = filters.evaluacion || '';
+    //   const filters = JSON.parse(filter);
+    //   const searchTerm = filters.search?.toLowerCase() || '';
+    //   const estadoFilter = filters.estado || '';
+    //   const tipoNotaFilter = filters.tipoNota || '';
 
-      const matchesSearch = !searchTerm ||
-        data.estudiante.nombres.toLowerCase().includes(searchTerm) ||
-        data.estudiante.apellidos.toLowerCase().includes(searchTerm) ||
-        data.estudiante.email.toLowerCase().includes(searchTerm);
+    //   // const matchesSearch = !searchTerm ||
+    //   //   data.estudiante.nombres.toLowerCase().includes(searchTerm) ||
+    //   //   data.estudiante.apellidos.toLowerCase().includes(searchTerm) ||
+    //   //   data.estudiante.email.toLowerCase().includes(searchTerm);
 
-      const matchesEstado = !estadoFilter || data.estado === estadoFilter;
+    //   // const matchesEstado = !estadoFilter || data.estado === estadoFilter;
 
-      const matchesEvaluacion = !evaluacionFilter ||
-        data.evaluaciones.some(evaluacion => evaluacion.nombre.toLowerCase().includes(evaluacionFilter.toLowerCase()));
+    //   // const matchesTipoNota = !tipoNotaFilter ||
+    //   //   data.notas.some(nota => nota.tipo.toLowerCase().includes(tipoNotaFilter.toLowerCase()));
 
-      return matchesSearch && matchesEstado && matchesEvaluacion;
-    };
+    // };
   }
 
   applyFilter(): void {
@@ -330,7 +246,7 @@ export class ProfesorNotasComponent implements OnInit {
     this.filtroForm.patchValue({
       search: '',
       estado: '',
-      evaluacion: ''
+      tipoNota: ''
     });
     this.dataSource.filter = '';
   }
@@ -345,76 +261,103 @@ export class ProfesorNotasComponent implements OnInit {
       this.estadisticas.promedioGeneral = data.reduce((sum, n) => sum + n.promedioFinal, 0) / data.length;
     }
 
-    this.estadisticas.evaluacionesPendientes = data.reduce((sum, n) =>
-      sum + n.evaluaciones.filter(e => e.estado === 'pendiente').length, 0
-    );
-  }
-
-  extraerEvaluaciones(): void {
-    const evaluacionesSet = new Set<string>();
-    this.dataSource.data.forEach(nota => {
-      nota.evaluaciones.forEach(evaluacion => {
-        evaluacionesSet.add(evaluacion.nombre);
-      });
-    });
-    this.evaluaciones = Array.from(evaluacionesSet);
+    this.estadisticas.notasPendientes = data.reduce((sum, n) => sum + n.notasPendientes, 0);
   }
 
   // Métodos de acciones
-  registrarNota(estudiante: NotaEstudiante, evaluacion?: Evaluacion): void {
+  registrarNota(estudiante: NotaEstudiante, nota?: Nota): void {
     const dialogRef = this.dialog.open(RegistrarNotaModalComponent, {
       width: '600px',
       data: {
         estudiante: estudiante.estudiante,
         asignatura: estudiante.asignatura,
-        evaluacion: evaluacion,
-        evaluacionesDisponibles: this.evaluaciones
+        nota: nota,
+        tiposDisponibles: this.tiposEvaluacion
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.snackBar.open('Nota registrada correctamente', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['success-snackbar']
+        // Crear la nota usando el servicio
+        const nuevaNota: Nota = {
+          idNota: 0, // Se asigna en el backend
+          Tipo: result.tipo,
+          Puntaje: result.puntaje,
+          Peso_Nota: result.peso_Nota,
+          idAsignatura: estudiante.asignatura.idAsignatura,
+          idEstudiante: 1,
+          Estado: true
+        };
+
+        this.notaService.createNota(nuevaNota).subscribe({
+          next: () => {
+            this.snackBar.open('Nota registrada correctamente', 'Cerrar', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+            // Recargar datos
+            this.loadNotasAsignatura(this.asignaturaSeleccionada!.idAsignatura);
+          },
+          error: (err) => {
+            console.error('Error al registrar nota:', err);
+            this.snackBar.open('Error al registrar la nota', 'Cerrar', { duration: 3000 });
+          }
         });
-        // Recargar datos
-        this.loadNotasAsignatura(this.asignaturaSeleccionada!.id);
       }
     });
   }
 
-  editarNota(estudiante: NotaEstudiante, evaluacion: Evaluacion): void {
+  editarNota(estudiante: NotaEstudiante, nota: Nota): void {
     const dialogRef = this.dialog.open(EditarNotaModalComponent, {
       width: '600px',
       data: {
         estudiante: estudiante.estudiante,
         asignatura: estudiante.asignatura,
-        evaluacion: evaluacion
+        nota: nota
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.snackBar.open('Nota actualizada correctamente', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['success-snackbar']
+        const notaActualizada: Nota = {
+          ...nota,
+          Puntaje: result.puntaje,
+          Tipo: result.tipo || nota.Tipo,
+          Peso_Nota: result.peso_Nota || nota.Peso_Nota
+        };
+
+        this.notaService.updateNota(nota.idNota || 0, notaActualizada).subscribe({
+          next: () => {
+            this.snackBar.open('Nota actualizada correctamente', 'Cerrar', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+            // Recargar datos
+            this.loadNotasAsignatura(this.asignaturaSeleccionada!.idAsignatura);
+          },
+          error: (err) => {
+            console.error('Error al actualizar nota:', err);
+            this.snackBar.open('Error al actualizar la nota', 'Cerrar', { duration: 3000 });
+          }
         });
-        // Recargar datos
-        this.loadNotasAsignatura(this.asignaturaSeleccionada!.id);
       }
     });
   }
 
-  eliminarNota(estudiante: NotaEstudiante, evaluacion: Evaluacion): void {
-    // Implementar confirmación y eliminación
-    this.snackBar.open(`Eliminar nota de ${evaluacion.nombre}`, 'Cerrar', {
-      duration: 2000
-    });
+  eliminarNota(estudiante: NotaEstudiante, nota: Nota): void {
+    if (confirm('¿Estás seguro de que deseas eliminar esta nota?')) {
+      this.notaService.deleteNota(nota.idNota || 0).subscribe({
+        next: () => {
+          this.snackBar.open('Nota eliminada correctamente', 'Cerrar', { duration: 3000 });
+          // Recargar datos
+          this.loadNotasAsignatura(this.asignaturaSeleccionada!.idAsignatura);
+        },
+        error: (err) => {
+          console.error('Error al eliminar nota:', err);
+          this.snackBar.open('Error al eliminar la nota', 'Cerrar', { duration: 3000 });
+        }
+      });
+    }
   }
 
   exportarNotas(): void {
@@ -431,7 +374,7 @@ export class ProfesorNotasComponent implements OnInit {
     });
   }
 
-  verDetalleEstudiante(estudiante: any): void {
+  verDetalleEstudiante(estudiante: Estudiante): void {
     this.snackBar.open(`Ver detalle de ${estudiante.nombres}`, 'Cerrar', {
       duration: 2000
     });
@@ -440,14 +383,6 @@ export class ProfesorNotasComponent implements OnInit {
   // Métodos de utilidad
   getDefaultAvatar(nombre: string): string {
     return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(nombre)}`;
-  }
-
-  getEvaluacionesPendientes(nota: NotaEstudiante): number {
-    return nota.evaluaciones.filter(e => e.estado === 'pendiente').length;
-  }
-
-  getEvaluacionesRegistradas(nota: NotaEstudiante): number {
-    return nota.evaluaciones.filter(e => e.estado === 'registrada').length;
   }
 
   getEstadoClass(estado: string): string {
@@ -484,22 +419,24 @@ export class ProfesorNotasComponent implements OnInit {
     }
   }
 
-  getTipoEvaluacionIcon(tipo: string): string {
-    switch (tipo) {
+  getTipoNotaIcon(tipo: string): string {
+    switch (tipo.toLowerCase()) {
       case 'examen': return 'quiz';
       case 'practica': return 'science';
+      case 'práctica': return 'science';
       case 'tarea': return 'assignment';
       case 'proyecto': return 'folder_special';
       case 'participacion': return 'forum';
+      case 'participación': return 'forum';
       default: return 'grade';
     }
   }
 
-  getNotaColor(nota: number | null): string {
-    if (nota === null) return 'text-gray-400';
-    if (nota >= 17) return 'text-green-600';
-    if (nota >= 14) return 'text-blue-600';
-    if (nota >= 11) return 'text-yellow-600';
+  getNotaColor(puntaje: number | null): string {
+    if (puntaje === null) return 'text-gray-400';
+    if (puntaje >= 17) return 'text-green-600';
+    if (puntaje >= 14) return 'text-blue-600';
+    if (puntaje >= 11) return 'text-yellow-600';
     return 'text-red-600';
   }
 }

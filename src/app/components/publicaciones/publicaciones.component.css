@@ -1,0 +1,209 @@
+/* src/app/components/foro-listar/foro-listar.component.css */
+.foro-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.foro-card {
+    margin-bottom: 20px;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+}
+
+.foro-table-container {
+    margin-top: 20px;
+}
+
+.full-width-table {
+    width: 100%;
+}
+
+.no-data-row {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+}
+
+.mat-mdc-row:hover {
+    background-color: #f5f5f5;
+}
+
+/* src/app/components/publicaciones/publicaciones.component.css */
+.publicaciones-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.publicaciones-card {
+    margin-bottom: 20px;
+}
+
+/* Estilos para la sección de creación */
+.create-section {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.create-form-panel {
+    margin-top: 16px;
+    box-shadow: none !important;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.create-form-panel .mat-expansion-panel-header {
+    display: none !important;
+}
+
+.create-form {
+    padding: 16px;
+    background-color: white;
+}
+
+.form-row {
+    margin-bottom: 16px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.form-actions {
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .form-row[style*="display: flex"] {
+        flex-direction: column !important;
+    }
+
+    .form-row mat-form-field {
+        flex: none !important;
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+.filtros-section {
+    background-color: #f9f9f9;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.filtros-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .filtros-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtros-row mat-form-field {
+        min-width: auto !important;
+        width: 100%;
+    }
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+}
+
+.publicaciones-table-container {
+    margin-top: 20px;
+}
+
+.full-width-table {
+    width: 100%;
+}
+
+.no-data-row {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+}
+
+.mat-mdc-row:hover {
+    background-color: #f5f5f5;
+}
+
+/* Estilos para los chips de labels */
+.label-chip {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.label-general {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.label-anuncio {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.label-pregunta {
+    background-color: #e8f5e8;
+    color: #388e3c;
+}
+
+.label-tarea {
+    background-color: #fce4ec;
+    color: #c2185b;
+}
+
+.label-examen {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+
+/* Estilo por defecto para labels no definidos */
+.label-chip:not(.label-general):not(.label-anuncio):not(.label-pregunta):not(.label-tarea):not(.label-examen) {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+/* Animaciones */
+.create-form-panel {
+    transition: all 0.3s ease-in-out;
+}
+
+.form-actions button {
+    transition: all 0.2s ease-in-out;
+}
+
+.form-actions button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

@@ -29,6 +29,7 @@ import { ProfesorEventosComponent } from './components/profesor-eventos/profesor
 import { ProfesorRecompensasComponent } from './components/profesor-recompensas/profesor-recompensas.component';
 import { ForoPrincipalComponent } from './components/foro-principal/foro-principal.component';
 import { TareaRegistrarComponent } from './components/tarea/tarea-registrar/tarea-registrar.component';
+import { PublicacionesComponent } from './components/publicaciones/publicaciones.component';
 
 
 
@@ -61,7 +62,7 @@ export const routes: Routes = [
       { path: 'horario', component: HorarioListarComponent },
       { path: 'eventos', component: EventoListarComponent },
       { path: 'foro', component: ForoListarComponent },
-      { path: 'foro/:idAsignatura', component: ForoListarComponent }
+      { path: 'foro/:idGrupo', component: PublicacionesComponent }
     ]
   },
 
@@ -78,8 +79,8 @@ export const routes: Routes = [
       { path: 'notas', component: ProfesorNotasComponent },
       { path: 'eventos', component: ProfesorEventosComponent },
       { path: 'recompensas', component: ProfesorRecompensasComponent },
-      { path: 'foro', component: ForoPrincipalComponent },
-      { path: 'foro/:idAsignatura', component: ForoListarComponent }
+      { path: 'foro', component: ForoListarComponent },
+      { path: 'foro/:idGrupo', component: PublicacionesComponent },
     ]
   },
 

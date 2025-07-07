@@ -1,7 +1,12 @@
 export interface Estudiante {
-  IdEstudiante?: number;
-  Ciclo: number;
-  idCarrera: number; 
-  idUsuario: number; 
-  Estado: boolean;
+  idEstudiante?: number;
+  nombres?: string;
+  apellidos?: string;
+  email?: string;
+  avatar?: string;
+  ciclo?: number;
+  estado?: boolean;
+  idCarrera?: number;
+  idUsuario?: number;
+  // otras propiedades según tu modelo
 }

@@ -1,8 +1,9 @@
 export interface Asignatura {
-  idAsignatura?: number;
-  Nombre: string;
-  Creditos: number;
-  Ciclo_Academico: number;
-  id_carrera: number; 
-  Estado: boolean;
+  idAsignatura: number;
+  nombre: string;
+  codigo?: string;
+  ciclo?: number;
+  creditos?: number;
+  estudiantesMatriculados?: number;
+  // otras propiedades según tu modelo
 }

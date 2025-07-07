@@ -8,8 +8,9 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Tarea } from '../../model/tarea';
 import { TareaService } from '../../services/tarea.service';
-
-
+// ✅ SOLO AGREGADO: Importaciones para eventos
+import { EventoService } from '../../services/evento.service';
+import { Evento } from '../../model/evento';
 
 interface EstadisticasEstudio {
   horasSemanales: number;
@@ -34,26 +35,69 @@ interface EstadisticasEstudio {
   templateUrl: './resume.component.html',
   styleUrl: './resume.component.css'
 })
-
-
 export class ResumeComponent implements OnInit {
   fechaActual = new Date();
   diasDelCalendario: { dia: number | null, esHoy: boolean }[] = [];
   private hoy = new Date();
   tareasActivas: Tarea[] = [];
   tareas: Tarea[] = [];
-  constructor(private tareaService: TareaService, private router: Router) {
 
-  }
+  // ✅ SOLO AGREGADO: Propiedades para eventos dinámicos
+  proximosEventos: Evento[] = [];
+  isLoadingEventos = false;
+
+  constructor(
+    private tareaService: TareaService,
+    private router: Router,
+    // ✅ SOLO AGREGADO: Inyección del EventoService
+    private eventoService: EventoService
+  ) { }
+
   ngOnInit(): void {
     this.generarCalendario();
     this.cargarEstadisticasEstudio();
     this.cargarTareas();
+    // ✅ SOLO AGREGADO: Cargar eventos
+    this.cargarProximosEventos();
   }
-  navegarATareas(): void {
 
+  navegarATareas(): void {
     this.router.navigate(['/dashboard-estudiante/tareas']);
   }
+
+  // ✅ SOLO AGREGADO: Métodos para eventos dinámicos
+  private cargarProximosEventos(): void {
+    this.isLoadingEventos = true;
+    this.eventoService.getEventos().subscribe({
+      next: (data: Evento[]) => {
+        this.proximosEventos = data.slice(0, 5);
+        this.isLoadingEventos = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar eventos:', err);
+        this.proximosEventos = [];
+        this.isLoadingEventos = false;
+      }
+    });
+  }
+
+  getDiaDelEvento(fechaInicio: string): number {
+    return new Date(fechaInicio).getDate();
+  }
+
+  getHoraEvento(fechaInicio: string): string {
+    return new Date(fechaInicio).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getDescripcionCorta(descripcion: string): string {
+    if (!descripcion) return 'Evento programado';
+    return descripcion.length > 50 ? descripcion.substring(0, 50) + '...' : descripcion;
+  }
+
+  // Todo lo demás se mantiene igual...
   private cargarTareas(): void {
     this.tareaService.listar().subscribe(
       (data: Tarea[]) => {
@@ -94,6 +138,7 @@ export class ResumeComponent implements OnInit {
       { dia: 'Dom', horas: 0 }
     ]
   };
+
   private cargarEstadisticasEstudio(): void {
     this.estadisticasEstudio = this.estadisticasEjemplo;
   }
@@ -141,9 +186,6 @@ export class ResumeComponent implements OnInit {
     const diaHoy = diasSemana[hoy.getDay()];
     return dia === diaHoy;
   }
-
-
-
 
   private esFechaHoy(fecha: Date): boolean {
     const hoy = new Date();
@@ -197,7 +239,6 @@ export class ResumeComponent implements OnInit {
     }
   }
 
-
   private generarCalendario(): void {
     const anio = this.fechaActual.getFullYear();
     const mes = this.fechaActual.getMonth();
@@ -223,5 +264,4 @@ export class ResumeComponent implements OnInit {
       this.diasDelCalendario.push({ dia: dia, esHoy: esHoy });
     }
   }
-
 }

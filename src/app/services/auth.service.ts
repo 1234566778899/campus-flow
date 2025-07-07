@@ -54,11 +54,11 @@ export class AuthService {
         }
 
         const estudianteDTO: Estudiante = {
-          IdEstudiante: 0,
-          Ciclo: payload.ciclo,
+          idEstudiante: 0,
+          ciclo: payload.ciclo,
           idCarrera: payload.idCarrera,
           idUsuario: responseUsuario.idUsuario,
-          Estado: true
+          estado: true
         };
         return this.http.post<Estudiante>(`${this.BASE_API_URL}/estudiante`, estudianteDTO);
       }),

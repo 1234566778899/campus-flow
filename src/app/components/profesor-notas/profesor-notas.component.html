@@ -28,8 +28,14 @@
         </div>
     </div>
 
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-16">
+        <mat-spinner diameter="50"></mat-spinner>
+        <span class="ml-4 text-gray-600">Cargando datos...</span>
+    </div>
+
     <!-- Selector de Asignatura -->
-    <mat-card class="selector-card mb-6">
+    <mat-card class="selector-card mb-6" *ngIf="!isLoading">
         <mat-card-content class="p-6">
             <form [formGroup]="filtroForm">
                 <div
@@ -41,14 +47,18 @@
                         <mat-label>Seleccionar Asignatura</mat-label>
                         <mat-select formControlName="asignatura" required>
                             <mat-option *ngFor="let asignatura of asignaturas"
-                                [value]="asignatura.id">
+                                [value]="asignatura.idAsignatura">
                                 <div
                                     class="flex items-center justify-between w-full">
-                                    <span>{{ asignatura.nombre }} ({{
-                                        asignatura.codigo }})</span>
-                                    <span class="text-sm text-gray-500">{{
-                                        asignatura.estudiantesMatriculados }}
-                                        estudiantes</span>
+                                    <!-- <span>{{ asignatura.nombre }}
+                                        <span *ngIf="asignatura.codigo">({{
+                                            asignatura.codigo }})</span>
+                                    </span>
+                                    <span class="text-sm text-gray-500"
+                                        *ngIf="asignatura.estudiantesMatriculados">
+                                        {{ asignatura.est }}
+                                        estudiantes
+                                    </span> -->
                                 </div>
                             </mat-option>
                         </mat-select>
@@ -89,15 +99,19 @@
                             <h3 class="text-lg font-semibold text-blue-900">{{
                                 asignaturaSeleccionada.nombre }}</h3>
                             <p class="text-blue-700 text-sm">
-                                Código: {{ asignaturaSeleccionada.codigo }} |
-                                Ciclo: {{ asignaturaSeleccionada.ciclo }} |
-                                Créditos: {{ asignaturaSeleccionada.creditos }}
+                                <!-- <span
+                                    *ngIf="asignaturaSeleccionada.codigo">Código:
+                                    {{ asignaturaSeleccionada.codi }}</span>
+                                <span *ngIf="asignaturaSeleccionada.ciclo"> |
+                                    Ciclo: {{ asignaturaSeleccionada.ciclo
+                                    }}</span>
+                                <span *ngIf="asignaturaSeleccionada.creditos"> |
+                                    Créditos: {{ asignaturaSeleccionada.creditos
+                                    }}</span> -->
                             </p>
                         </div>
-                        <button mat-button
-                            type="button"
-                            (click)="clearFilters()"
-                            class="text-blue-600">
+                        <button mat-button type="button"
+                            (click)="clearFilters()" class="text-blue-600">
                             <mat-icon>clear</mat-icon>
                             Limpiar Filtros
                         </button>
@@ -109,7 +123,7 @@
     </mat-card>
 
     <!-- Estadísticas (solo si hay asignatura seleccionada) -->
-    <div *ngIf="asignaturaSeleccionada"
+    <div *ngIf="asignaturaSeleccionada && !isLoading"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
 
         <mat-card
@@ -179,11 +193,10 @@
             <mat-card-content class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p
-                            class="text-orange-600 text-sm font-medium">Evaluaciones
+                        <p class="text-orange-600 text-sm font-medium">Notas
                             Pendientes</p>
                         <p class="text-xl font-bold text-gray-900">{{
-                            estadisticas.evaluacionesPendientes }}</p>
+                            estadisticas.notasPendientes }}</p>
                     </div>
                     <mat-icon
                         class="text-orange-500 text-3xl">pending</mat-icon>
@@ -194,7 +207,7 @@
     </div>
 
     <!-- Tabla de Notas -->
-    <mat-card *ngIf="asignaturaSeleccionada" class="table-card">
+    <mat-card *ngIf="asignaturaSeleccionada && !isLoading" class="table-card">
         <mat-card-content class="p-0">
 
             <!-- Table Header -->
@@ -208,7 +221,9 @@
                     </h3>
 
                     <div class="flex gap-2">
-                        <button mat-icon-button matTooltip="Actualizar datos">
+                        <button mat-icon-button
+                            matTooltip="Actualizar datos"
+                            (click)="loadNotasAsignatura(asignaturaSeleccionada.idAsignatura)">
                             <mat-icon>refresh</mat-icon>
                         </button>
                         <button mat-icon-button
@@ -230,87 +245,91 @@
                             mat-sort-header="estudiante.nombres" class="w-72">
                             Estudiante
                         </th>
-                        <td mat-cell *matCellDef="let nota" class="py-4">
+                        <td mat-cell *matCellDef="let notaEstudiante"
+                            class="py-4">
                             <div class="flex items-center gap-3">
                                 <img
-                                    [src]="nota.estudiante.avatar || getDefaultAvatar(nota.estudiante.nombres)"
-                                    [alt]="nota.estudiante.nombres"
+                                    [src]="notaEstudiante.estudiante.avatar || getDefaultAvatar(notaEstudiante.estudiante.nombres)"
+                                    [alt]="notaEstudiante.estudiante.nombres"
                                     class="w-10 h-10 rounded-full border-2 border-gray-200">
                                 <div>
                                     <div class="font-medium text-gray-900">
-                                        {{ nota.estudiante.nombres }} {{
-                                        nota.estudiante.apellidos }}
+                                        {{ notaEstudiante.estudiante.nombres }}
+                                        {{ notaEstudiante.estudiante.apellidos
+                                        }}
                                     </div>
                                     <div class="text-sm text-gray-500">{{
-                                        nota.estudiante.email }}</div>
+                                        notaEstudiante.estudiante.email }}</div>
                                 </div>
                             </div>
                         </td>
                     </ng-container>
 
-                    <!-- Evaluaciones Column -->
-                    <ng-container matColumnDef="evaluaciones">
+                    <!-- Notas Column -->
+                    <ng-container matColumnDef="notas">
                         <th mat-header-cell *matHeaderCellDef class="w-96">
                             Evaluaciones
                         </th>
-                        <td mat-cell *matCellDef="let nota">
+                        <td mat-cell *matCellDef="let notaEstudiante">
                             <div class="flex flex-wrap gap-2">
-                                <div
-                                    *ngFor="let evaluacion of nota.evaluaciones"
-                                    class="evaluation-chip"
-                                    [class.pending]="evaluacion.estado === 'pendiente'"
-                                    [class.completed]="evaluacion.estado === 'registrada'"
-                                    [matTooltip]="evaluacion.nombre + ' (' + evaluacion.peso + '%)'">
+                                <div *ngFor="let nota of notaEstudiante.notas"
+                                    class="evaluation-chip completed"
+                                    [matTooltip]="nota.tipo + ' (' + nota.peso_Nota + '%)'">
 
                                     <div class="flex items-center gap-2">
                                         <mat-icon
-                                            [class]="getNotaColor(evaluacion.nota)"
+                                            [class]="getNotaColor(nota.puntaje)"
                                             class="text-sm">
-                                            {{
-                                            getTipoEvaluacionIcon(evaluacion.tipo)
-                                            }}
+                                            {{ getTipoNotaIcon(nota.tipo) }}
                                         </mat-icon>
 
                                         <span class="font-medium text-xs">
-                                            {{ evaluacion.nombre.substring(0, 8)
-                                            }}{{ evaluacion.nombre.length > 8 ?
-                                            '...' : '' }}
+                                            {{ nota.tipo.substring(0, 8) }}{{
+                                            nota.tipo.length > 8 ? '...' : '' }}
                                         </span>
 
-                                        <span *ngIf="evaluacion.nota !== null"
-                                            [class]="getNotaColor(evaluacion.nota)"
+                                        <span
+                                            [class]="getNotaColor(nota.puntaje)"
                                             class="font-bold text-sm">
-                                            {{ evaluacion.nota.toFixed(1) }}
-                                        </span>
-
-                                        <span *ngIf="evaluacion.nota === null"
-                                            class="text-gray-400 text-xs">
-                                            Pendiente
+                                            {{ nota.puntaje.toFixed(1) }}
                                         </span>
                                     </div>
 
-                                    <!-- Botones de acción para cada evaluación -->
+                                    <!-- Botones de acción para cada nota -->
                                     <div class="flex gap-1 mt-1">
-                                        <button *ngIf="evaluacion.nota === null"
-                                            mat-icon-button
-                                            size="small"
-                                            class="text-xs h-6 w-6"
-                                            matTooltip="Registrar nota"
-                                            (click)="registrarNota(nota, evaluacion)">
-                                            <mat-icon
-                                                class="text-sm">add</mat-icon>
-                                        </button>
-
-                                        <button *ngIf="evaluacion.nota !== null"
-                                            mat-icon-button
+                                        <button mat-icon-button
                                             size="small"
                                             class="text-xs h-6 w-6"
                                             matTooltip="Editar nota"
-                                            (click)="editarNota(nota, evaluacion)">
+                                            (click)="editarNota(notaEstudiante, nota)">
                                             <mat-icon
                                                 class="text-sm">edit</mat-icon>
                                         </button>
+
+                                        <button mat-icon-button
+                                            size="small"
+                                            class="text-xs h-6 w-6"
+                                            matTooltip="Eliminar nota"
+                                            (click)="eliminarNota(notaEstudiante, nota)">
+                                            <mat-icon
+                                                class="text-sm">delete</mat-icon>
+                                        </button>
                                     </div>
+                                </div>
+
+                                <!-- Indicador de notas pendientes -->
+                                <div *ngIf="notaEstudiante.notasPendientes > 0"
+                                    class="evaluation-chip pending"
+                                    matTooltip="Agregar nueva evaluación">
+                                    <button mat-icon-button
+                                        size="small"
+                                        class="text-xs h-6 w-6"
+                                        (click)="registrarNota(notaEstudiante)">
+                                        <mat-icon class="text-sm">add</mat-icon>
+                                    </button>
+                                    <span class="text-xs text-gray-500">{{
+                                        notaEstudiante.notasPendientes }}
+                                        pendientes</span>
                                 </div>
                             </div>
                         </td>
@@ -322,12 +341,13 @@
                             mat-sort-header="promedioFinal" class="w-32">
                             Promedio Final
                         </th>
-                        <td mat-cell *matCellDef="let nota">
+                        <td mat-cell *matCellDef="let notaEstudiante">
                             <div class="flex items-center gap-2">
                                 <span
-                                    [class]="getPromedioClass(nota.promedioFinal)"
+                                    [class]="getPromedioClass(notaEstudiante.promedioFinal)"
                                     class="px-3 py-1 rounded-full text-sm font-bold">
-                                    {{ nota.promedioFinal.toFixed(1) }}
+                                    {{ notaEstudiante.promedioFinal.toFixed(1)
+                                    }}
                                 </span>
                             </div>
                         </td>
@@ -339,10 +359,11 @@
                             mat-sort-header="estado" class="w-32">
                             Estado
                         </th>
-                        <td mat-cell *matCellDef="let nota">
-                            <mat-chip [color]="getEstadoColor(nota.estado)"
+                        <td mat-cell *matCellDef="let notaEstudiante">
+                            <mat-chip
+                                [color]="getEstadoColor(notaEstudiante.estado)"
                                 selected size="small">
-                                {{ getEstadoLabel(nota.estado) }}
+                                {{ getEstadoLabel(notaEstudiante.estado) }}
                             </mat-chip>
                         </td>
                     </ng-container>
@@ -351,7 +372,7 @@
                     <ng-container matColumnDef="acciones">
                         <th mat-header-cell *matHeaderCellDef
                             class="w-32">Acciones</th>
-                        <td mat-cell *matCellDef="let nota">
+                        <td mat-cell *matCellDef="let notaEstudiante">
                             <button mat-icon-button
                                 [matMenuTriggerFor]="actionMenu">
                                 <mat-icon>more_vert</mat-icon>
@@ -359,12 +380,12 @@
 
                             <mat-menu #actionMenu="matMenu">
                                 <button mat-menu-item
-                                    (click)="registrarNota(nota)">
+                                    (click)="registrarNota(notaEstudiante)">
                                     <mat-icon>add</mat-icon>
                                     <span>Nueva Evaluación</span>
                                 </button>
                                 <button mat-menu-item
-                                    (click)="verDetalleEstudiante(nota.estudiante)">
+                                    (click)="verDetalleEstudiante(notaEstudiante.estudiante)">
                                     <mat-icon>visibility</mat-icon>
                                     <span>Ver Detalle</span>
                                 </button>
@@ -399,7 +420,8 @@
     </mat-card>
 
     <!-- Estado sin asignatura seleccionada -->
-    <div *ngIf="!asignaturaSeleccionada" class="text-center py-16">
+    <div *ngIf="!asignaturaSeleccionada && !isLoading"
+        class="text-center py-16">
         <mat-card class="max-w-md mx-auto">
             <mat-card-content class="p-8">
                 <mat-icon class="text-6xl text-gray-400 mb-4">school</mat-icon>

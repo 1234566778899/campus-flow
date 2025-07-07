@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Estudiante } from '../model/estudiante';
@@ -13,11 +13,11 @@ export class EstudianteService {
 
   constructor(private http: HttpClient) { }
 
- /**
-   * Envía los datos de registro de un nuevo estudiante al backend.
-   * @param payload Los datos del formulario de registro.
-   * @returns Un Observable con el EstudianteDTO del estudiante registrado.
-   */
+  /**
+    * Envía los datos de registro de un nuevo estudiante al backend.
+    * @param payload Los datos del formulario de registro.
+    * @returns Un Observable con el EstudianteDTO del estudiante registrado.
+    */
   registerEstudiante(payload: RegisterEstudiantePayload): Observable<Estudiante> { // Asegúrate de que el tipo de retorno sea EstudianteDTO
     return this.http.post<Estudiante>(`${this.apiUrl}/estudiantes/register`, payload).pipe( // Ruta ajustada a '/estudiantes/register'
       catchError(this.handleError)
@@ -52,4 +52,41 @@ export class EstudianteService {
     console.error('Error en EstudianteService:', errorMessage);
     return throwError(() => new Error(errorMessage));
   }
+
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+  /**
+   * Obtiene todos los estudiantes
+   */
+  getEstudiantes(): Observable<Estudiante[]> {
+    return this.http.get<Estudiante[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtiene un estudiante por ID
+   */
+  getEstudianteById(id: number): Observable<Estudiante> {
+    return this.http.get<Estudiante>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtiene estudiantes por asignatura
+   */
+  getEstudiantesByAsignatura(idAsignatura: number): Observable<Estudiante[]> {
+    return this.http.get<Estudiante[]>(`${this.apiUrl}/asignatura/${idAsignatura}`, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+
 }

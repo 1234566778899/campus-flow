@@ -1,4 +1,3 @@
-// src/app/components/profesor/profesor-eventos/registrar-evento-modal/registrar-evento-modal.component.ts
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -6,25 +5,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatStepperModule } from '@angular/material/stepper';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatChip } from '@angular/material/chips';
-
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs/operators';
 import { EventoService } from '../../services/evento.service';
+import { Evento } from '../../model/evento';
 
 interface RegistrarEventoData {
-  evento?: any;
-  asignaturas: any[];
-  tiposEvento: any[];
+  evento?: Evento;
   esEdicion?: boolean;
-  idProfesor: number; // Añadido para enviar el ID del profesor
+  idProfesor: number;
 }
 
 @Component({
@@ -37,24 +30,16 @@ interface RegistrarEventoData {
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatCheckboxModule,
     MatSlideToggleModule,
-    MatStepperModule,
-    ReactiveFormsModule,
-    MatChip
+    ReactiveFormsModule
   ],
   templateUrl: './registrar-evento-modal.component.html',
   styleUrls: ['./registrar-evento-modal.component.scss']
 })
 export class RegistrarEventoModalComponent implements OnInit {
-  informacionForm: FormGroup;
-  fechaHoraForm: FormGroup;
-  ubicacionForm: FormGroup;
-  configuracionForm: FormGroup;
-
+  eventoForm: FormGroup;
   isLoading = false;
   fechaMinima = new Date();
 
@@ -65,29 +50,12 @@ export class RegistrarEventoModalComponent implements OnInit {
     private eventoService: EventoService,
     private snackBar: MatSnackBar
   ) {
-    // Formulario de información básica
-    this.informacionForm = this.fb.group({
+    this.eventoForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      tipo: ['', Validators.required],
-      asignatura: ['', Validators.required],
-      descripcion: ['', [Validators.required, Validators.maxLength(500)]],
-      puntajeRecompensa: [0, [Validators.min(0), Validators.max(100)]]
-    });
-
-    // Formulario de fecha y hora
-    this.fechaHoraForm = this.fb.group({
+      descripcion: ['', [Validators.required, Validators.maxLength(1000)]],
       fechaInicio: ['', Validators.required],
       fechaFin: [''],
-    });
-
-    // Formulario de ubicación (simplificado según modelo backend)
-    this.ubicacionForm = this.fb.group({
-      modalidad: ['presencial', Validators.required],
-      ubicacion: ['']
-    });
-
-    // Formulario de configuración (ajustado según modelo backend)
-    this.configuracionForm = this.fb.group({
+      puntajeRecompensa: [0, [Validators.min(0), Validators.max(100)]],
       estado: [true]
     });
   }
@@ -100,57 +68,36 @@ export class RegistrarEventoModalComponent implements OnInit {
   }
 
   cargarDatosEvento(): void {
-    const evento = this.data.evento;
+    const evento = this.data.evento!;
 
-    this.informacionForm.patchValue({
+    this.eventoForm.patchValue({
       nombre: evento.nombre,
-      tipo: evento.tipo,
-      asignatura: evento.asignatura?.id,
       descripcion: evento.descripcion,
-      puntajeRecompensa: evento.puntajeRecompensa || 0
-    });
-
-    this.fechaHoraForm.patchValue({
       fechaInicio: new Date(evento.fechaInicio),
-      fechaFin: evento.fechaFin ? new Date(evento.fechaFin) : null
-    });
-
-    this.ubicacionForm.patchValue({
-      modalidad: evento.modalidad || 'presencial',
-      ubicacion: evento.ubicacion || ''
-    });
-
-    this.configuracionForm.patchValue({
-      estado: evento.estado !== false // Por defecto true si no está definido
+      fechaFin: evento.fechaFin ? new Date(evento.fechaFin) : null,
+      puntajeRecompensa: evento.puntajeRecompensa || 0,
+      estado: evento.estado !== false
     });
   }
 
   setupValidacionesDinamicas(): void {
-    this.ubicacionForm.get('modalidad')?.valueChanges.subscribe(modalidad => {
-      const ubicacionControl = this.ubicacionForm.get('ubicacion');
-      if (modalidad === 'virtual') {
-        ubicacionControl?.clearValidators();
-      } else {
-        ubicacionControl?.setValidators([Validators.required]);
-      }
-      ubicacionControl?.updateValueAndValidity();
-    });
-
-    this.fechaHoraForm.get('fechaInicio')?.valueChanges.subscribe(fechaInicio => {
+    this.eventoForm.get('fechaInicio')?.valueChanges.subscribe(fechaInicio => {
       if (!fechaInicio) return;
-      const fechaFin = this.fechaHoraForm.get('fechaFin');
-      if (!fechaFin?.value || fechaFin.value < fechaInicio) {
-        fechaFin?.patchValue(fechaInicio);
+      const fechaFinControl = this.eventoForm.get('fechaFin');
+      if (!fechaFinControl?.value || fechaFinControl.value < fechaInicio) {
+        fechaFinControl?.patchValue(fechaInicio);
       }
     });
   }
 
   onSubmit(): void {
-    if (this.sonFormulariosValidos()) {
+    if (this.eventoForm.valid) {
       this.isLoading = true;
       const eventoData = this.construirEventoData();
 
-      const operacion = this.eventoService.createEvento(eventoData);
+      const operacion = this.data.esEdicion
+        ? this.eventoService.updateEvento(this.data.evento!.idEvento, eventoData)
+        : this.eventoService.createEvento(eventoData);
 
       operacion.pipe(
         finalize(() => this.isLoading = false)
@@ -183,76 +130,25 @@ export class RegistrarEventoModalComponent implements OnInit {
     );
   }
 
-  sonFormulariosValidos(): boolean {
-    return this.informacionForm.valid &&
-      this.fechaHoraForm.valid &&
-      this.ubicacionForm.valid &&
-      this.configuracionForm.valid;
-  }
-
-  construirEventoData(): any {
-    const fechaInicio = this.fechaHoraForm.get('fechaInicio')?.value;
-    const fechaFin = this.fechaHoraForm.get('fechaFin')?.value || fechaInicio;
+  construirEventoData(): Evento {
+    const fechaInicio = this.eventoForm.get('fechaInicio')?.value;
+    const fechaFin = this.eventoForm.get('fechaFin')?.value || fechaInicio;
 
     return {
-      idEvento: 0,
-      nombre: this.informacionForm.get('nombre')?.value,
-      descripcion: this.informacionForm.get('descripcion')?.value,
-      fechaInicio: fechaInicio.toISOString().split('T')[0], // Formato YYYY-MM-DD
+      // Para nuevos eventos, enviar null; para edición, usar el ID existente
+      idEvento: this.data.esEdicion ? this.data.evento!.idEvento : null as any,
+      nombre: this.eventoForm.get('nombre')?.value,
+      descripcion: this.eventoForm.get('descripcion')?.value,
+      fechaInicio: fechaInicio.toISOString().split('T')[0],
       fechaFin: fechaFin.toISOString().split('T')[0],
-      puntajeRecompensa: this.informacionForm.get('puntajeRecompensa')?.value,
-      modalidad: this.ubicacionForm.get('modalidad')?.value,
-      ubicacion: this.ubicacionForm.get('ubicacion')?.value,
-      estado: this.configuracionForm.get('estado')?.value,
-      idProfesor: 1,
-      // Campos adicionales si es edición
-      ...(this.data.esEdicion && { idEvento: this.data.evento.id })
+      puntajeRecompensa: this.eventoForm.get('puntajeRecompensa')?.value || 0,
+      estado: this.eventoForm.get('estado')?.value,
+      idProfesor: this.data.idProfesor
     };
   }
 
   cerrar(): void {
     this.dialogRef.close();
-  }
-
-  // Métodos de utilidad (se mantienen iguales)
-  getPlaceholderUbicacion(): string {
-    const modalidad = this.ubicacionForm.get('modalidad')?.value;
-    switch (modalidad) {
-      case 'virtual': return 'https://meet.google.com/abc-defg-hij';
-      case 'presencial': return 'Ej: Aula 201, Laboratorio de Cómputo';
-      case 'hibrida': return 'Aula principal + enlace virtual';
-      default: return 'Especifica la ubicación';
-    }
-  }
-
-  getHintUbicacion(): string {
-    const modalidad = this.ubicacionForm.get('modalidad')?.value;
-    switch (modalidad) {
-      case 'virtual': return 'Enlace de Google Meet, Zoom, Teams, etc.';
-      case 'presencial': return 'Aula, laboratorio, auditorio, etc.';
-      case 'hibrida': return 'Ubicación física + enlace virtual';
-      default: return '';
-    }
-  }
-
-  getIconoUbicacion(): string {
-    const modalidad = this.ubicacionForm.get('modalidad')?.value;
-    switch (modalidad) {
-      case 'virtual': return 'link';
-      case 'presencial': return 'place';
-      case 'hibrida': return 'hub';
-      default: return 'place';
-    }
-  }
-
-  getTipoLabel(tipoValue: string): string {
-    const tipo = this.data.tiposEvento.find(t => t.value === tipoValue);
-    return tipo ? tipo.label : tipoValue;
-  }
-
-  getAsignaturaLabel(asignaturaId: number): string {
-    const asignatura = this.data.asignaturas.find(a => a.id === asignaturaId);
-    return asignatura ? `${asignatura.nombre} (${asignatura.codigo})` : '';
   }
 
   formatearFecha(fecha: Date): string {

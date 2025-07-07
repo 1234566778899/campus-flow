@@ -4,7 +4,8 @@
   justify-content: center;
   padding: 30px;
   background-color: #f0f2f5;
-  min-height: calc(100vh - 64px); /* Ajusta si tienes un navbar superior */
+  min-height: calc(100vh - 64px);
+  /* Ajusta si tienes un navbar superior */
   box-sizing: border-box;
 }
 
@@ -91,13 +92,17 @@
   .foro-container {
     padding: 15px;
   }
+
   .foro-card {
     padding: 15px;
   }
+
   .foro-card mat-card-title {
     font-size: 1.5em;
   }
-  .mat-header-cell, .mat-cell {
+
+  .mat-header-cell,
+  .mat-cell {
     padding: 8px 10px;
     font-size: 0.9em;
   }
@@ -107,18 +112,22 @@
   .foro-container {
     padding: 10px;
   }
+
   .foro-card {
     padding: 10px;
   }
+
   .foro-card mat-card-title {
     font-size: 1.3em;
   }
+
   .mat-icon-button {
     width: 32px;
     height: 32px;
     line-height: 32px;
     font-size: 18px;
   }
+
   .mat-icon-button mat-icon {
     font-size: 18px;
     width: 18px;

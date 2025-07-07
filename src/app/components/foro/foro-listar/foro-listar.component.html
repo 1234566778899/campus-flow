@@ -11,37 +11,42 @@
       </div>
 
       <div *ngIf="!isLoading" class="foro-table-container">
-        <table mat-table [dataSource]="gruposForo" class="full-width-table mat-elevation-z8">
+        <table mat-table [dataSource]="gruposForo"
+          class="full-width-table mat-elevation-z8">
 
           <!-- Columna: Título del Foro -->
           <ng-container matColumnDef="titulo">
             <th mat-header-cell *matHeaderCellDef> Título del Foro </th>
-            <td mat-cell *matCellDef="let grupo"> {{ grupo.Titulo }} </td>
+            <td mat-cell *matCellDef="let grupo"> {{ grupo.titulo }} </td>
           </ng-container>
 
           <!-- Columna: Descripción -->
           <ng-container matColumnDef="descripcion">
             <th mat-header-cell *matHeaderCellDef> Descripción </th>
-            <td mat-cell *matCellDef="let grupo"> {{ grupo.Descripcion }} </td>
+            <td mat-cell *matCellDef="let grupo"> {{ grupo.descripcion }} </td>
           </ng-container>
 
           <!-- Columna: Nombre de la Asignatura -->
           <ng-container matColumnDef="nombreAsignatura">
             <th mat-header-cell *matHeaderCellDef> Asignatura </th>
-            <td mat-cell *matCellDef="let grupo"> {{ grupo.nombreAsignatura || 'N/A' }} </td>
+            <td mat-cell *matCellDef="let grupo"> {{ grupo.nombreAsignatura ||
+              'N/A' }} </td>
           </ng-container>
 
           <!-- Columna: Fecha de Creación -->
           <ng-container matColumnDef="fechaCreacion">
             <th mat-header-cell *matHeaderCellDef> Fecha de Creación </th>
-            <td mat-cell *matCellDef="let grupo"> {{ grupo.FechaCreacion | date:'dd/MM/yyyy' }} </td>
+            <td mat-cell *matCellDef="let grupo"> {{ grupo.fechaCreacion |
+              date:'dd/MM/yyyy' }} </td>
           </ng-container>
 
           <!-- Columna: Acciones -->
           <ng-container matColumnDef="acciones">
             <th mat-header-cell *matHeaderCellDef> Acciones </th>
             <td mat-cell *matCellDef="let grupo">
-              <button mat-icon-button color="primary" (click)="verPublicaciones(grupo.idGrupoForo)" matTooltip="Ver Publicaciones">
+              <button mat-icon-button color="primary"
+                (click)="verPublicaciones(grupo.idGrupoForo)"
+                matTooltip="Ver Publicaciones">
                 <mat-icon>visibility</mat-icon>
               </button>
             </td>

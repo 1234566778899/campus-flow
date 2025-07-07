@@ -1,4 +1,3 @@
-// src/app/components/profesor/profesor-eventos/profesor-eventos.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -11,47 +10,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
+import { Evento } from '../../model/evento';
+import { EventoService } from '../../services/evento.service';
 import { RegistrarEventoModalComponent } from './registrar-evento-modal.component';
 
 
-interface Evento {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  tipo: 'examen' | 'tarea' | 'proyecto' | 'presentacion' | 'actividad' | 'reunion';
-  asignatura: {
-    id: number;
-    nombre: string;
-    codigo: string;
-  };
-  fechaInicio: Date;
-  fechaFin: Date;
-  horaInicio: string;
-  horaFin: string;
-  ubicacion?: string;
-  modalidad: 'presencial' | 'virtual' | 'hibrida';
-  estado: 'programado' | 'en_curso' | 'completado' | 'cancelado';
-  participantes: number;
-  recordatorios: boolean;
-  prioridad: 'baja' | 'media' | 'alta';
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface Asignatura {
-  id: number;
-  nombre: string;
-  codigo: string;
-  estudiantesMatriculados: number;
+interface EstadisticasEventos {
+  totalEventos: number;
+  eventosProgramados: number;
+  eventosCompletados: number;
+  eventosHoy: number;
+  proximosEventos: number;
 }
 
 @Component({
@@ -69,7 +46,6 @@ interface Asignatura {
     MatCardModule,
     MatSelectModule,
     MatDialogModule,
-    MatTabsModule,
     MatChipsModule,
     MatTooltipModule,
     MatMenuModule,
@@ -85,19 +61,15 @@ export class ProfesorEventosComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // Datos
   eventos: Evento[] = [];
-  asignaturas: Asignatura[] = [];
   dataSource = new MatTableDataSource<Evento>();
-
-  // Formularios
   filtroForm: FormGroup;
+  isLoading = false;
+  idProfesor = 1; // Este valor debería venir del servicio de autenticación
 
-  // Configuración de tabla
-  displayedColumns: string[] = ['evento', 'asignatura', 'fecha', 'tipo', 'estado', 'participantes', 'acciones'];
+  displayedColumns: string[] = ['evento', 'fechas', 'puntaje', 'estado', 'acciones'];
 
-  // Estadísticas
-  estadisticas = {
+  estadisticas: EstadisticasEventos = {
     totalEventos: 0,
     eventosProgramados: 0,
     eventosCompletados: 0,
@@ -105,32 +77,19 @@ export class ProfesorEventosComponent implements OnInit {
     proximosEventos: 0
   };
 
-  // Opciones de filtro
-  tiposEvento = [
-    { value: 'examen', label: 'Examen', icon: 'quiz' },
-    { value: 'tarea', label: 'Tarea', icon: 'assignment' },
-    { value: 'proyecto', label: 'Proyecto', icon: 'folder_special' },
-    { value: 'presentacion', label: 'Presentación', icon: 'present_to_all' },
-    { value: 'actividad', label: 'Actividad', icon: 'sports_esports' },
-    { value: 'reunion', label: 'Reunión', icon: 'meeting_room' }
-  ];
-
   estadosEvento = [
-    { value: 'programado', label: 'Programado', color: 'primary' },
-    { value: 'en_curso', label: 'En Curso', color: 'accent' },
-    { value: 'completado', label: 'Completado', color: 'primary' },
-    { value: 'cancelado', label: 'Cancelado', color: 'warn' }
+    { value: true, label: 'Activo', color: 'primary' },
+    { value: false, label: 'Inactivo', color: 'warn' }
   ];
 
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private eventoService: EventoService
   ) {
     this.filtroForm = this.fb.group({
       search: [''],
-      asignatura: [''],
-      tipo: [''],
       estado: [''],
       fechaDesde: [''],
       fechaHasta: ['']
@@ -138,7 +97,6 @@ export class ProfesorEventosComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadAsignaturas();
     this.loadEventos();
     this.setupFormSubscriptions();
   }
@@ -149,130 +107,26 @@ export class ProfesorEventosComponent implements OnInit {
     this.setupFilter();
   }
 
-  loadAsignaturas(): void {
-    // Datos de ejemplo - conectar con tu servicio real
-    this.asignaturas = [
-      {
-        id: 1,
-        nombre: 'Programación Web',
-        codigo: 'CS-301',
-        estudiantesMatriculados: 28
-      },
-      {
-        id: 2,
-        nombre: 'Base de Datos',
-        codigo: 'CS-302',
-        estudiantesMatriculados: 25
-      },
-      {
-        id: 3,
-        nombre: 'Redes de Computadoras',
-        codigo: 'CS-303',
-        estudiantesMatriculados: 22
-      }
-    ];
-  }
-
   loadEventos(): void {
-    // Datos de ejemplo - conectar con tu servicio real
-    const eventosEjemplo: Evento[] = [
-      {
-        id: 1,
-        titulo: 'Examen Parcial - Programación Web',
-        descripcion: 'Evaluación parcial que abarca los temas de HTML, CSS y JavaScript básico.',
-        tipo: 'examen',
-        asignatura: {
-          id: 1,
-          nombre: 'Programación Web',
-          codigo: 'CS-301'
-        },
-        fechaInicio: new Date('2024-12-20'),
-        fechaFin: new Date('2024-12-20'),
-        horaInicio: '09:00',
-        horaFin: '11:00',
-        ubicacion: 'Aula 201',
-        modalidad: 'presencial',
-        estado: 'programado',
-        participantes: 28,
-        recordatorios: true,
-        prioridad: 'alta',
-        createdAt: new Date('2024-12-01'),
-        updatedAt: new Date('2024-12-01')
+    this.isLoading = true;
+    this.eventoService.getEventosByProfesorId(this.idProfesor).subscribe({
+      next: (eventos) => {
+        console.log('Eventos cargados:', eventos);
+        // Verificar que eventos sea un array válido
+        this.eventos = Array.isArray(eventos) ? eventos : [];
+        this.dataSource.data = this.eventos;
+        this.calcularEstadisticas();
+        this.isLoading = false;
       },
-      {
-        id: 2,
-        titulo: 'Entrega Proyecto Final - Base de Datos',
-        descripcion: 'Presentación y entrega del proyecto final del curso. Incluye documentación y demo.',
-        tipo: 'proyecto',
-        asignatura: {
-          id: 2,
-          nombre: 'Base de Datos',
-          codigo: 'CS-302'
-        },
-        fechaInicio: new Date('2024-12-22'),
-        fechaFin: new Date('2024-12-22'),
-        horaInicio: '14:00',
-        horaFin: '17:00',
-        ubicacion: 'Laboratorio de Cómputo 1',
-        modalidad: 'presencial',
-        estado: 'programado',
-        participantes: 25,
-        recordatorios: true,
-        prioridad: 'alta',
-        createdAt: new Date('2024-11-15'),
-        updatedAt: new Date('2024-12-01')
-      },
-      {
-        id: 3,
-        titulo: 'Taller de Configuración de Redes',
-        descripcion: 'Actividad práctica para configurar routers y switches.',
-        tipo: 'actividad',
-        asignatura: {
-          id: 3,
-          nombre: 'Redes de Computadoras',
-          codigo: 'CS-303'
-        },
-        fechaInicio: new Date('2024-12-18'),
-        fechaFin: new Date('2024-12-18'),
-        horaInicio: '10:00',
-        horaFin: '12:00',
-        ubicacion: 'Laboratorio de Redes',
-        modalidad: 'presencial',
-        estado: 'completado',
-        participantes: 22,
-        recordatorios: false,
-        prioridad: 'media',
-        createdAt: new Date('2024-11-20'),
-        updatedAt: new Date('2024-12-18')
-      },
-      {
-        id: 4,
-        titulo: 'Reunión de Seguimiento - Proyectos',
-        descripcion: 'Reunión para revisar el progreso de los proyectos finales.',
-        tipo: 'reunion',
-        asignatura: {
-          id: 1,
-          nombre: 'Programación Web',
-          codigo: 'CS-301'
-        },
-        fechaInicio: new Date('2024-12-15'),
-        fechaFin: new Date('2024-12-15'),
-        horaInicio: '15:00',
-        horaFin: '16:00',
-        ubicacion: 'Oficina del Profesor',
-        modalidad: 'hibrida',
-        estado: 'completado',
-        participantes: 10,
-        recordatorios: true,
-        prioridad: 'media',
-        createdAt: new Date('2024-12-10'),
-        updatedAt: new Date('2024-12-15')
+      error: (error) => {
+        console.error('Error cargando eventos:', error);
+        this.eventos = []; // Asegurar que eventos sea un array vacío en caso de error
+        this.dataSource.data = [];
+        this.calcularEstadisticas();
+        this.mostrarError('Error al cargar los eventos');
+        this.isLoading = false;
       }
-    ];
-
-    this.eventos = eventosEjemplo;
-    this.dataSource.data = eventosEjemplo;
-    this.calcularEstadisticas();
+    });
   }
 
   setupFormSubscriptions(): void {
@@ -287,20 +141,15 @@ export class ProfesorEventosComponent implements OnInit {
 
       const filters = JSON.parse(filter);
       const searchTerm = filters.search?.toLowerCase() || '';
-      const asignaturaFilter = filters.asignatura || '';
-      const tipoFilter = filters.tipo || '';
-      const estadoFilter = filters.estado || '';
+      const estadoFilter = filters.estado;
       const fechaDesde = filters.fechaDesde ? new Date(filters.fechaDesde) : null;
       const fechaHasta = filters.fechaHasta ? new Date(filters.fechaHasta) : null;
 
       const matchesSearch = !searchTerm ||
-        data.titulo.toLowerCase().includes(searchTerm) ||
-        data.descripcion.toLowerCase().includes(searchTerm) ||
-        data.asignatura.nombre.toLowerCase().includes(searchTerm);
+        data.nombre.toLowerCase().includes(searchTerm) ||
+        data.descripcion.toLowerCase().includes(searchTerm);
 
-      const matchesAsignatura = !asignaturaFilter || data.asignatura.id === asignaturaFilter;
-      const matchesTipo = !tipoFilter || data.tipo === tipoFilter;
-      const matchesEstado = !estadoFilter || data.estado === estadoFilter;
+      const matchesEstado = estadoFilter === '' || estadoFilter === null || data.estado === estadoFilter;
 
       let matchesFecha = true;
       if (fechaDesde || fechaHasta) {
@@ -309,7 +158,7 @@ export class ProfesorEventosComponent implements OnInit {
         if (fechaHasta && eventoFecha > fechaHasta) matchesFecha = false;
       }
 
-      return matchesSearch && matchesAsignatura && matchesTipo && matchesEstado && matchesFecha;
+      return matchesSearch && matchesEstado && matchesFecha;
     };
   }
 
@@ -324,14 +173,19 @@ export class ProfesorEventosComponent implements OnInit {
   }
 
   calcularEstadisticas(): void {
+    if (!Array.isArray(this.eventos)) {
+      this.eventos = [];
+    }
+
     this.estadisticas.totalEventos = this.eventos.length;
-    this.estadisticas.eventosProgramados = this.eventos.filter(e => e.estado === 'programado').length;
-    this.estadisticas.eventosCompletados = this.eventos.filter(e => e.estado === 'completado').length;
+    this.estadisticas.eventosProgramados = this.eventos.filter(e => e.estado === true).length;
+    this.estadisticas.eventosCompletados = this.eventos.filter(e => e.estado === false).length;
 
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
     this.estadisticas.eventosHoy = this.eventos.filter(e => {
+      if (!e.fechaInicio) return false;
       const fechaEvento = new Date(e.fechaInicio);
       fechaEvento.setHours(0, 0, 0, 0);
       return fechaEvento.getTime() === hoy.getTime();
@@ -341,159 +195,196 @@ export class ProfesorEventosComponent implements OnInit {
     proximaSemana.setDate(proximaSemana.getDate() + 7);
 
     this.estadisticas.proximosEventos = this.eventos.filter(e => {
+      if (!e.fechaInicio || e.estado !== true) return false;
       const fechaEvento = new Date(e.fechaInicio);
-      return fechaEvento >= hoy && fechaEvento <= proximaSemana && e.estado === 'programado';
+      return fechaEvento >= hoy && fechaEvento <= proximaSemana;
     }).length;
   }
 
-  // Métodos de acciones
   nuevoEvento(): void {
     const dialogRef = this.dialog.open(RegistrarEventoModalComponent, {
-      width: '800px',
+      width: '600px',
       maxHeight: '90vh',
       data: {
-        asignaturas: this.asignaturas,
-        tiposEvento: this.tiposEvento
+        idProfesor: this.idProfesor,
+        esEdicion: false
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.snackBar.open('Evento registrado correctamente', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['success-snackbar']
-        });
-        this.loadEventos(); // Recargar datos
+        this.mostrarExito('Evento creado correctamente');
+        this.loadEventos();
       }
     });
   }
 
   editarEvento(evento: Evento): void {
     const dialogRef = this.dialog.open(RegistrarEventoModalComponent, {
-      width: '800px',
+      width: '600px',
       maxHeight: '90vh',
       data: {
         evento: evento,
-        asignaturas: this.asignaturas,
-        tiposEvento: this.tiposEvento,
+        idProfesor: this.idProfesor,
         esEdicion: true
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.snackBar.open('Evento actualizado correctamente', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['success-snackbar']
-        });
-        this.loadEventos(); // Recargar datos
+        this.mostrarExito('Evento actualizado correctamente');
+        this.loadEventos();
       }
     });
   }
 
   duplicarEvento(evento: Evento): void {
-    const eventoDuplicado = { ...evento, id: 0, titulo: `${evento.titulo} (Copia)` };
-    this.editarEvento(eventoDuplicado);
+    const eventoDuplicado: Evento = {
+      ...evento,
+      idEvento: 0,
+      nombre: `${evento.nombre} (Copia)`
+    };
+
+    this.eventoService.createEvento(eventoDuplicado).subscribe({
+      next: () => {
+        this.mostrarExito('Evento duplicado correctamente');
+        this.loadEventos();
+      },
+      error: (error) => {
+        this.mostrarError('Error al duplicar el evento');
+      }
+    });
   }
 
-  cambiarEstadoEvento(evento: Evento, nuevoEstado: string): void {
-    this.snackBar.open(`Estado cambiado a: ${nuevoEstado}`, 'Cerrar', {
-      duration: 3000
+  cambiarEstadoEvento(evento: Evento): void {
+    const eventoActualizado: Evento = {
+      ...evento,
+      estado: !evento.estado
+    };
+
+    this.eventoService.updateEvento(evento.idEvento, eventoActualizado).subscribe({
+      next: () => {
+        const mensaje = evento.estado ? 'Evento desactivado' : 'Evento activado';
+        this.mostrarExito(mensaje);
+        this.loadEventos();
+      },
+      error: (error) => {
+        this.mostrarError('Error al cambiar el estado del evento');
+      }
     });
-    // Aquí implementarías la llamada al servicio
   }
 
   eliminarEvento(evento: Evento): void {
-    // Implementar confirmación
-    this.snackBar.open(`Evento "${evento.titulo}" eliminado`, 'Cerrar', {
-      duration: 3000,
-      panelClass: ['error-snackbar']
-    });
+    if (confirm(`¿Estás seguro de que quieres eliminar el evento "${evento.nombre}"?`)) {
+      this.eventoService.deleteEvento(evento.idEvento).subscribe({
+        next: () => {
+          this.mostrarExito('Evento eliminado correctamente');
+          this.loadEventos();
+        },
+        error: (error) => {
+          this.mostrarError('Error al eliminar el evento');
+        }
+      });
+    }
   }
 
-  verParticipantes(evento: Evento): void {
-    this.snackBar.open(`Ver participantes de: ${evento.titulo}`, 'Cerrar', {
-      duration: 2000
-    });
+  exportarEventos(): void {
+    const csvContent = this.generarCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `eventos_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    this.mostrarExito('Eventos exportados correctamente');
   }
 
-  enviarRecordatorio(evento: Evento): void {
-    this.snackBar.open(`Recordatorio enviado para: ${evento.titulo}`, 'Cerrar', {
+  private generarCSV(): string {
+    const headers = ['ID', 'Nombre', 'Descripción', 'Fecha Inicio', 'Fecha Fin', 'Puntaje Recompensa', 'Estado'];
+    const rows = this.eventos.map(evento => [
+      evento.idEvento,
+      `"${evento.nombre}"`,
+      `"${evento.descripcion}"`,
+      evento.fechaInicio,
+      evento.fechaFin,
+      evento.puntajeRecompensa,
+      evento.estado ? 'Activo' : 'Inactivo'
+    ]);
+
+    return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+  }
+
+  // Métodos de utilidad
+  formatearFecha(fecha: string): string {
+    if (!fecha) return 'No especificada';
+    try {
+      return new Date(fecha).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return 'Fecha inválida';
+    }
+  }
+
+  esEventoProximo(fecha: string): boolean {
+    if (!fecha) return false;
+    try {
+      const hoy = new Date();
+      const fechaEvento = new Date(fecha);
+      const diferenciaDias = Math.ceil((fechaEvento.getTime() - hoy.getTime()) / (1000 * 3600 * 24));
+      return diferenciaDias >= 0 && diferenciaDias <= 7;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  esEventoHoy(fecha: string): boolean {
+    if (!fecha) return false;
+    try {
+      const hoy = new Date();
+      const fechaEvento = new Date(fecha);
+      return hoy.toDateString() === fechaEvento.toDateString();
+    } catch (error) {
+      return false;
+    }
+  }
+
+  getEstadoColor(estado: boolean): 'primary' | 'warn' {
+    return estado ? 'primary' : 'warn';
+  }
+
+  getEstadoLabel(estado: boolean): string {
+    return estado ? 'Activo' : 'Inactivo';
+  }
+
+  extractModalidadFromDescription(descripcion: string): string {
+    if (!descripcion) return 'No especificada';
+    const modalidadMatch = descripcion.match(/Modalidad:\s*(\w+)/i);
+    return modalidadMatch ? modalidadMatch[1] : 'No especificada';
+  }
+
+  extractUbicacionFromDescription(descripcion: string): string {
+    if (!descripcion) return 'No especificada';
+    const ubicacionMatch = descripcion.match(/Ubicación:\s*([^\n]+)/i);
+    return ubicacionMatch ? ubicacionMatch[1].trim() : 'No especificada';
+  }
+
+  private mostrarExito(mensaje: string): void {
+    this.snackBar.open(mensaje, 'Cerrar', {
       duration: 3000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
       panelClass: ['success-snackbar']
     });
   }
 
-  exportarEventos(): void {
-    this.snackBar.open('Exportando eventos...', 'Cerrar', {
-      duration: 2000
+  private mostrarError(mensaje: string): void {
+    this.snackBar.open(mensaje, 'Cerrar', {
+      duration: 5000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar']
     });
-  }
-
-  // Métodos de utilidad
-  getTipoIcon(tipo: string): string {
-    const tipoEncontrado = this.tiposEvento.find(t => t.value === tipo);
-    return tipoEncontrado ? tipoEncontrado.icon : 'event';
-  }
-
-  getTipoLabel(tipo: string): string {
-    const tipoEncontrado = this.tiposEvento.find(t => t.value === tipo);
-    return tipoEncontrado ? tipoEncontrado.label : tipo;
-  }
-
-  getEstadoColor(estado: string): 'primary' | 'accent' | 'warn' | undefined {
-    const estadoEncontrado = this.estadosEvento.find(e => e.value === estado);
-    return estadoEncontrado ? estadoEncontrado.color as any : undefined;
-  }
-
-  getEstadoLabel(estado: string): string {
-    const estadoEncontrado = this.estadosEvento.find(e => e.value === estado);
-    return estadoEncontrado ? estadoEncontrado.label : estado;
-  }
-
-  getPrioridadClass(prioridad: string): string {
-    switch (prioridad) {
-      case 'alta': return 'prioridad-alta';
-      case 'media': return 'prioridad-media';
-      case 'baja': return 'prioridad-baja';
-      default: return '';
-    }
-  }
-
-  getModalidadIcon(modalidad: string): string {
-    switch (modalidad) {
-      case 'presencial': return 'location_on';
-      case 'virtual': return 'videocam';
-      case 'hibrida': return 'hybrid';
-      default: return 'help';
-    }
-  }
-
-  formatearFecha(fecha: Date): string {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }
-
-  formatearHora(hora: string): string {
-    return hora;
-  }
-
-  esEventoProximo(fecha: Date): boolean {
-    const hoy = new Date();
-    const diferenciaDias = Math.ceil((new Date(fecha).getTime() - hoy.getTime()) / (1000 * 3600 * 24));
-    return diferenciaDias >= 0 && diferenciaDias <= 7;
-  }
-
-  esEventoHoy(fecha: Date): boolean {
-    const hoy = new Date();
-    const fechaEvento = new Date(fecha);
-    return hoy.toDateString() === fechaEvento.toDateString();
   }
 }

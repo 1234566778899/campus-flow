@@ -1,6 +1,7 @@
+// src/app/services/publicacion.service.ts
 import { Injectable } from '@angular/core';
 import { Publicacion } from '../model/publicacion';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -8,104 +9,92 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class PublicacionService {
-  private apiUrl = `${environment.apiUrl}/publicacion`; // Ajusta la ruta de tu API para Publicacion
+  private apiUrl = `${environment.apiUrl}/publicacion`;
 
   constructor(private http: HttpClient) { }
 
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
   /**
    * Obtiene la lista de todas las publicaciones activas.
-   * @returns Un Observable con un array de PublicacionDTO.
    */
   getPublicaciones(): Observable<Publicacion[]> {
-    return this.http.get<Publicacion[]>(this.apiUrl).pipe(
+    return this.http.get<Publicacion[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Obtiene una publicación por su ID.
-   * @param id El ID de la publicación.
-   * @returns Un Observable con la PublicacionDTO.
    */
   getPublicacionById(id: number): Observable<Publicacion> {
-    return this.http.get<Publicacion>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<Publicacion>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Crea una nueva publicación.
-   * @param publicacion El PublicacionDTO a crear.
-   * @returns Un Observable con la PublicacionDTO creada.
    */
   createPublicacion(publicacion: Publicacion): Observable<Publicacion> {
-    return this.http.post<Publicacion>(this.apiUrl, publicacion).pipe(
+    return this.http.post<Publicacion>(this.apiUrl, publicacion, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Actualiza una publicación existente.
-   * @param id El ID de la publicación a actualizar.
-   * @param publicacion Los datos actualizados de la PublicacionDTO.
-   * @returns Un Observable con la PublicacionDTO actualizada.
    */
   updatePublicacion(id: number, publicacion: Publicacion): Observable<Publicacion> {
-    return this.http.put<Publicacion>(`${this.apiUrl}/${id}`, publicacion).pipe(
+    return this.http.put<Publicacion>(`${this.apiUrl}/${id}`, publicacion, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Elimina lógicamente una publicación.
-   * @param id El ID de la publicación a eliminar.
-   * @returns Un Observable con la PublicacionDTO eliminada (lógicamente).
    */
   deletePublicacion(id: number): Observable<Publicacion> {
-    return this.http.delete<Publicacion>(`${this.apiUrl}/${id}`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Obtiene publicaciones de un grupo de foro específico.
-   * @param idGrupoForo El ID del grupo de foro.
-   * @returns Un Observable con un array de PublicacionDTO.
-   */
-  getPublicacionesByGrupoForo(idGrupoForo: number): Observable<Publicacion[]> {
-    return this.http.get<Publicacion[]>(`${this.apiUrl}/grupo-foro/${idGrupoForo}`).pipe(
+    return this.http.delete<Publicacion>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Obtiene publicaciones de un grupo de foro con un label específico.
-   * @param idGrupoForo El ID del grupo de foro.
-   * @param label El label de la publicación.
-   * @returns Un Observable con un array de PublicacionDTO.
    */
   getPublicacionesByGrupoForoAndLabel(idGrupoForo: number, label: string): Observable<Publicacion[]> {
-    return this.http.get<Publicacion[]>(`${this.apiUrl}/grupo-foro/${idGrupoForo}/label/${label}`).pipe(
+    return this.http.get<Publicacion[]>(`${this.apiUrl}/grupo/${idGrupoForo}/label/${label}`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Obtiene publicaciones de un grupo de foro por fecha.
-   * @param idGrupoForo El ID del grupo de foro.
-   * @param fecha La fecha de la publicación (formato 'YYYY-MM-DD').
-   * @returns Un Observable con un array de PublicacionDTO.
    */
   getPublicacionesByGrupoForoAndFecha(idGrupoForo: number, fecha: string): Observable<Publicacion[]> {
-    return this.http.get<Publicacion[]>(`${this.apiUrl}/grupo-foro/${idGrupoForo}/fecha/${fecha}`).pipe(
+    return this.http.get<Publicacion[]>(`${this.apiUrl}/grupo/${idGrupoForo}/fecha/${fecha}`, { headers: this.getHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Obtiene resumen de publicaciones por label.
+   */
+  getResumenPorLabel(): Observable<{ [key: string]: number }> {
+    return this.http.get<{ [key: string]: number }>(`${this.apiUrl}/resumen/label`, { headers: this.getHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
    * Maneja los errores de las peticiones HTTP.
-   * @param error El error HTTP.
-   * @returns Un Observable con un error.
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Ha ocurrido un error inesperado en PublicacionService.';

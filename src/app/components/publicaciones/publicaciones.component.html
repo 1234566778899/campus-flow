@@ -1,0 +1,236 @@
+<!-- src/app/components/publicaciones/publicaciones.component.html -->
+<div class="publicaciones-container">
+    <mat-card class="publicaciones-card">
+        <mat-card-header>
+            <mat-card-title>Publicaciones del Foro</mat-card-title>
+            <mat-card-subtitle>
+                <button mat-icon-button (click)="volverAForos()"
+                    matTooltip="Volver a la lista de foros">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                Grupo de Foro ID: {{ idGrupoForo }}
+            </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+            <!-- Sección de Nueva Publicación -->
+            <div class="create-section" style="margin-bottom: 20px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="margin: 0;">Publicaciones</h3>
+                    <button mat-raised-button color="primary"
+                        (click)="toggleCreateForm()" [disabled]="isLoading">
+                        <mat-icon>{{ showCreateForm ? 'close' : 'add'
+                            }}</mat-icon>
+                        {{ showCreateForm ? 'Cancelar' : 'Nueva Publicación' }}
+                    </button>
+                </div>
+
+                <!-- Formulario de Creación -->
+                <mat-expansion-panel [expanded]="showCreateForm"
+                    [disabled]="!showCreateForm" class="create-form-panel">
+                    <mat-expansion-panel-header *ngIf="false">
+                        <!-- Header oculto porque controlamos la expansión manualmente -->
+                    </mat-expansion-panel-header>
+
+                    <form [formGroup]="publicacionForm"
+                        (ngSubmit)="crearPublicacion()" class="create-form">
+                        <div class="form-row">
+                            <!-- Campo Contenido -->
+                            <mat-form-field appearance="outline"
+                                class="full-width">
+                                <mat-label>Contenido de la
+                                    Publicación</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="contenido"
+                                    placeholder="Escribe el contenido de tu publicación..."
+                                    rows="4"
+                                    maxlength="1000">
+                  </textarea>
+                                <mat-hint
+                                    align="end">{{publicacionForm.get('contenido')?.value?.length
+                                    || 0}}/1000</mat-hint>
+                                <mat-error
+                                    *ngIf="publicacionForm.get('contenido')?.invalid && publicacionForm.get('contenido')?.touched">
+                                    {{ getErrorMessage('contenido') }}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-row" style="display: flex; gap: 16px;">
+                            <!-- Campo Label -->
+                            <mat-form-field appearance="outline"
+                                style="flex: 1;">
+                                <mat-label>Categoría</mat-label>
+                                <mat-select formControlName="label">
+                                    <mat-option
+                                        *ngFor="let label of labelsDisponibles"
+                                        [value]="label">
+                                        {{ label }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error
+                                    *ngIf="publicacionForm.get('label')?.invalid && publicacionForm.get('label')?.touched">
+                                    {{ getErrorMessage('label') }}
+                                </mat-error>
+                            </mat-form-field>
+
+                            <!-- Campo Fecha -->
+                            <mat-form-field appearance="outline"
+                                style="flex: 1;">
+                                <mat-label>Fecha de Publicación</mat-label>
+                                <input matInput [matDatepicker]="createPicker"
+                                    formControlName="fecha">
+                                <mat-datepicker-toggle matSuffix
+                                    [for]="createPicker"></mat-datepicker-toggle>
+                                <mat-datepicker #createPicker></mat-datepicker>
+                                <mat-error
+                                    *ngIf="publicacionForm.get('fecha')?.invalid && publicacionForm.get('fecha')?.touched">
+                                    {{ getErrorMessage('fecha') }}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="form-actions"
+                            style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                            <button mat-button type="button"
+                                (click)="cancelarCreacion()"
+                                [disabled]="isCreating">
+                                Cancelar
+                            </button>
+                            <button mat-raised-button color="primary"
+                                type="submit"
+                                [disabled]="publicacionForm.invalid || isCreating">
+                                <mat-spinner diameter="20" *ngIf="isCreating"
+                                    style="margin-right: 8px;"></mat-spinner>
+                                <mat-icon *ngIf="!isCreating">save</mat-icon>
+                                {{ isCreating ? 'Creando...' :
+                                'Crear Publicación' }}
+                            </button>
+                        </div>
+                    </form>
+                </mat-expansion-panel>
+            </div>
+            <!-- Filtros -->
+            <div class="filtros-section" style="margin-bottom: 20px;">
+                <div class="filtros-row"
+                    style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                    <!-- Filtro por Label -->
+                    <mat-form-field appearance="outline"
+                        style="min-width: 200px;">
+                        <mat-label>Filtrar por Label</mat-label>
+                        <mat-select [(value)]="filtroLabel"
+                            (selectionChange)="aplicarFiltros()">
+                            <mat-option value>Todos los labels</mat-option>
+                            <mat-option *ngFor="let label of labelsDisponibles"
+                                [value]="label">
+                                {{ label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Filtro por Fecha -->
+                    <mat-form-field appearance="outline"
+                        style="min-width: 200px;">
+                        <mat-label>Filtrar por Fecha</mat-label>
+                        <input matInput [matDatepicker]="picker"
+                            [(ngModel)]="filtroFecha"
+                            (dateChange)="aplicarFiltros()">
+                        <mat-datepicker-toggle matSuffix
+                            [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+
+                    <!-- Botón Limpiar Filtros -->
+                    <button mat-raised-button color="accent"
+                        (click)="limpiarFiltros()"
+                        matTooltip="Limpiar todos los filtros">
+                        <mat-icon>clear</mat-icon>
+                        Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div *ngIf="isLoading" class="loading-spinner"
+                style="text-align: center; padding: 20px;">
+                <mat-spinner></mat-spinner>
+                <p>Cargando publicaciones...</p>
+            </div>
+
+            <!-- Tabla de Publicaciones -->
+            <div *ngIf="!isLoading" class="publicaciones-table-container">
+                <table mat-table [dataSource]="publicaciones"
+                    class="full-width-table mat-elevation-z8">
+
+                    <!-- Columna: Contenido -->
+                    <ng-container matColumnDef="contenido">
+                        <th mat-header-cell *matHeaderCellDef> Contenido </th>
+                        <td mat-cell *matCellDef="let publicacion">
+                            <div
+                                style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">
+                                {{ publicacion.contenido }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Columna: Fecha -->
+                    <ng-container matColumnDef="fecha">
+                        <th mat-header-cell *matHeaderCellDef> Fecha </th>
+                        <td mat-cell *matCellDef="let publicacion"> {{
+                            publicacion.fecha | date:'dd/MM/yyyy' }} </td>
+                    </ng-container>
+
+                    <!-- Columna: Label -->
+                    <ng-container matColumnDef="label">
+                        <th mat-header-cell *matHeaderCellDef> Label </th>
+                        <td mat-cell *matCellDef="let publicacion">
+                            <span class="label-chip"
+                                [class]="'label-' + publicacion.label.toLowerCase()">
+                                {{ publicacion.label }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Columna: Acciones -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                        <td mat-cell *matCellDef="let publicacion">
+                            <button mat-icon-button color="primary"
+                                (click)="editarPublicacion(publicacion)"
+                                matTooltip="Editar Publicación">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn"
+                                (click)="eliminarPublicacion(publicacion.idPublicacion)"
+                                matTooltip="Eliminar Publicación">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <!-- Definición de la fila de encabezado -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <!-- Definición de las filas de datos -->
+                    <tr mat-row
+                        *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                    <!-- Fila que se muestra cuando no hay datos -->
+                    <tr class="mat-row no-data-row" *matNoDataRow>
+                        <td class="mat-cell"
+                            [attr.colspan]="displayedColumns.length"
+                            style="text-align: center; padding: 20px;">
+                            No hay publicaciones disponibles para mostrar.
+                            <br>
+                            <small *ngIf="filtroLabel || filtroFecha">Intenta
+                                cambiar los filtros o limpiarlos para ver más
+                                resultados.</small>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

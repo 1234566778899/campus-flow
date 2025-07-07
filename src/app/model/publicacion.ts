@@ -1,8 +1,8 @@
 export interface Publicacion {
-  IdPublicacion?: number;
-  Contenido: string;
-  Fecha: string; // Usar string para LocalDate de Java (formato ISO 8601)
+  idPublicacion: number;
+  contenido: string;
+  fecha: Date;
   label: string;
-  Estado: boolean;
-  idGrupoForo: number;
+  estado: boolean;
+  idGrupoForo: number; // Según el DTO del backend
 }
